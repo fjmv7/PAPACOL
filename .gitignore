@@ -1,0 +1,21 @@
+# Dependencias
+backend/node_modules/
+frontend/.dart_tool/
+frontend/build/
+frontend/.packages
+
+# Variables de entorno y credenciales (RNF-14)
+.env
+backend/.env
+*.pem
+*.key
+
+# Artefactos de pruebas y compilacion
+backend/coverage/lcov-report/
+*.log
+
+# Sistema operativo / editor
+.DS_Store
+Thumbs.db
+.vscode/settings.json
+.idea/
