@@ -1,0 +1,136 @@
+======================================================================
+ PAPACOL - EVIDENCIA DE EJECUCION END-TO-END DE LAS 3 CFV
+ Fecha: 2026-09-17 06:16:09 -05
+ Backend: Node v22.22.2 + Express | BD: PostgreSQL 16
+======================================================================
+
+--- Comprobacion de servicio
+GET /salud
+Codigo HTTP: 200
+{"exito":true,"servicio":"PAPACOL API","version":"1.0.0","hora":"2026-09-17T11:16:09.192Z"}
+
+--- Catalogos de referencia que alimentan los formularios
+GET /referencias
+Codigo HTTP: 200
+{"exito":true,"datos":{"municipios":[{"municipio_id":1,"nombre":"Carmen de Carupa","departamento":"Cundinamarca"},{"municipio_id":2,"nombre":"Villa de San Diego de Ubate","departamento":"Cundinamarca"}],"variedades":[{"variedad_id":2,"nombre":"Capiro","descripcion":"Variedad de uso industrial y mercado fresco"},{"variedad_id":4,"nombre":"Criolla","descripcion":"Papa amarilla de piel delgada y ciclo corto"},{"variedad_id":1,"nombre":"Parda Pastusa","descripcion":"Variedad de piel parda, alta demanda en mercado fresco"},{"variedad_id":3,"nombre":"Pastusa Suprema","descripcion":"Variedad mejorada de ciclo intermedio"}],"calibres":[{"calibre_id":1,"nombre":"Primera","rango_tamano":"Tuberculo gra
+
+############ CFV-01 - REGISTRO Y AUTENTICACION ############
+
+--- RF-01 Registro de un nuevo productor (esperado 201)
+POST /auth/registro
+Codigo HTTP: 201
+{"exito":true,"mensaje":"Usuario registrado correctamente.","datos":{"usuario_id":7,"identificacion":"1050505050","nombre":"Ana","apellido":"Pineda","correo":"ana.pineda@pruebas.papacol.local","telefono":"3005556677","estado":"ACTIVO","fecha_registro":"2026-09-17T11:16:09.334Z","rol_id":1,"rol":"PRODUCTOR","municipio_id":1,"municipio":"Carmen de Carupa","departamento":"Cundinamarca"}}
+
+--- RN-01 Correo duplicado (esperado 409)
+POST /auth/registro
+Codigo HTTP: 409
+{"exito":false,"mensaje":"Ya existe una cuenta registrada con ese correo electronico."}
+
+--- Validacion de entradas (esperado 400)
+POST /auth/registro
+Codigo HTTP: 400
+{"exito":false,"mensaje":"Los datos de registro no son validos.","detalles":["La identificacion debe contener entre 6 y 20 digitos.","El nombre debe tener al menos 2 caracteres.","El apellido debe tener al menos 2 caracteres.","El correo electronico no tiene un formato valido.","El telefono debe contener entre 7 y 15 digitos.","La contrasena debe tener al menos 8 caracteres.","El rol debe ser uno de: PRODUCTOR, COMPRADOR.","Debe seleccionar un municipio valido."]}
+
+--- RF-03 Contrasena incorrecta (esperado 401)
+POST /auth/login
+Codigo HTTP: 401
+{"exito":false,"mensaje":"Correo o contrasena incorrectos."}
+
+--- RF-03 Login correcto del productor (esperado 200)
+POST /auth/login
+Codigo HTTP: 200
+{"exito":true,"mensaje":"Autenticacion exitosa.","datos":{"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImNvcnJlbyI6Impvc2Uucm9kcmlndWV6QHBydWViYXMucGFwYWNvbC5sb2NhbCIsInJvbCI6IlBST0RVQ1RPUiIsImlhdCI6MTc4OTY0Mzc2OSwiZXhwIjoxNzg5NjcyNTY5fQ.UcoP2fy5BHeFWZ6YrLPaEGrw-_aPVp-yLqJp_JS6Y6U","usuario":{"usuario_id":1,"identificacion":"1010101010","nombre":"Jose","apellido":"Rodriguez","correo":"jose.rodriguez@pruebas.papacol.local","telefono":"3001112233","estado":"ACTIVO","fecha_registro":"2026-09-17T11:09:45.321Z","rol_id":1,"rol":"PRODUCTOR","municipio_id":1,"municipio":"Carmen de Carupa","departamento":"Cundinamarca"}}}
+
+--- Perfil del usuario autenticado (esperado 200)
+GET /auth/perfil
+Codigo HTTP: 200
+{"exito":true,"datos":{"usuario_id":1,"identificacion":"1010101010","nombre":"Jose","apellido":"Rodriguez","correo":"jose.rodriguez@pruebas.papacol.local","telefono":"3001112233","estado":"ACTIVO","fecha_registro":"2026-09-17T11:09:45.321Z","rol_id":1,"rol":"PRODUCTOR","municipio_id":1,"municipio":"Carmen de Carupa","departamento":"Cundinamarca"}}
+
+--- Sin token (esperado 401)
+GET /auth/perfil
+Codigo HTTP: 401
+{"exito":false,"mensaje":"Token de autenticacion no proporcionado."}
+
+############ CFV-02 - CRUD DE LOTES DEL PRODUCTOR ############
+
+--- RN-02 Un COMPRADOR intenta publicar (esperado 403)
+POST /lotes
+Codigo HTTP: 403
+{"exito":false,"mensaje":"Acceso denegado. Se requiere el rol: PRODUCTOR."}
+
+--- RN-04 Precio en cero (esperado 400)
+POST /lotes
+Codigo HTTP: 400
+{"exito":false,"mensaje":"Los datos del lote no son validos.","detalles":["El precio por bulto debe ser mayor que cero."]}
+
+--- RF-04 Publicar un lote nuevo (esperado 201)
+POST /lotes
+Codigo HTTP: 201
+{"exito":true,"mensaje":"Lote publicado correctamente.","datos":{"lote_id":9,"cantidad_bultos":35,"peso_bulto_kg":"50.00","precio_bulto":"83000.00","fecha_cosecha":"2026-09-10T00:00:00.000Z","fecha_publicacion":"2026-09-17T00:00:00.000Z","estado":"DISPONIBLE","descripcion":"Lote publicado durante la demostracion del incremento","variedad_id":2,"variedad":"Capiro","calibre_id":2,"calibre":"Segunda","productor_id":1,"productor":"Jose Rodriguez","productor_telefono":"3001112233","productor_correo":"jose.rodriguez@pruebas.papacol.local","municipio_id":1,"municipio":"Carmen de Carupa"}}
+(Identificador del lote recien creado: 9)
+
+--- RF-05 Lotes propios del productor (esperado 200)
+GET /lotes/mios
+Codigo HTTP: 200
+{"exito":true,"datos":[{"lote_id":9,"cantidad_bultos":35,"peso_bulto_kg":"50.00","precio_bulto":"83000.00","fecha_cosecha":"2026-09-10T00:00:00.000Z","fecha_publicacion":"2026-09-17T00:00:00.000Z","estado":"DISPONIBLE","descripcion":"Lote publicado durante la demostracion del incremento","variedad_id":2,"variedad":"Capiro","calibre_id":2,"calibre":"Segunda","productor_id":1,"productor":"Jose Rodriguez","productor_telefono":"3001112233","productor_correo":"jose.rodriguez@pruebas.papacol.local","municipio_id":1,"municipio":"Carmen de Carupa"},{"lote_id":2,"cantidad_bultos":25,"peso_bulto_kg":"50.00","precio_bulto":"78000.00","fecha_cosecha":"2026-09-01T00:00:00.000Z","fecha_publicacion":"2026-
+
+--- RN-03 Otro productor intenta modificarlo (esperado 403)
+PUT /lotes/9
+Codigo HTTP: 403
+{"exito":false,"mensaje":"No puede modificar un lote que no es de su autoria."}
+
+--- RF-06 El autor modifica el precio (esperado 200)
+PUT /lotes/9
+Codigo HTTP: 200
+{"exito":true,"mensaje":"Lote actualizado correctamente.","datos":{"lote_id":9,"cantidad_bultos":35,"peso_bulto_kg":"50.00","precio_bulto":"88500.00","fecha_cosecha":"2026-09-10T00:00:00.000Z","fecha_publicacion":"2026-09-17T00:00:00.000Z","estado":"DISPONIBLE","descripcion":"Precio ajustado tras revision","variedad_id":2,"variedad":"Capiro","calibre_id":2,"calibre":"Segunda","productor_id":1,"productor":"Jose Rodriguez","productor_telefono":"3001112233","productor_correo":"jose.rodriguez@pruebas.papacol.local","municipio_id":1,"municipio":"Carmen de Carupa"}}
+
+--- RF-07 / RN-09 Retiro logico (esperado 200, estado RETIRADO)
+DELETE /lotes/9
+Codigo HTTP: 200
+{"exito":true,"mensaje":"Lote retirado del catalogo.","datos":{"lote_id":9,"cantidad_bultos":35,"peso_bulto_kg":"50.00","precio_bulto":"88500.00","fecha_cosecha":"2026-09-10T00:00:00.000Z","fecha_publicacion":"2026-09-17T00:00:00.000Z","estado":"RETIRADO","descripcion":"Precio ajustado tras revision","variedad_id":2,"variedad":"Capiro","calibre_id":2,"calibre":"Segunda","productor_id":1,"productor":"Jose Rodriguez","productor_telefono":"3001112233","productor_correo":"jose.rodriguez@pruebas.papacol.local","municipio_id":1,"municipio":"Carmen de Carupa"}}
+
+--- Retirar dos veces el mismo lote (esperado 409)
+DELETE /lotes/9
+Codigo HTTP: 409
+{"exito":false,"mensaje":"El lote ya se encuentra retirado."}
+
+############ CFV-03 - CONSULTA PUBLICA DEL CATALOGO ############
+
+--- RF-08 Catalogo publico sin token (esperado 200, solo DISPONIBLE)
+GET /catalogo
+Codigo HTTP: 200
+{"exito":true,"lotes":[{"lote_id":2,"cantidad_bultos":25,"peso_bulto_kg":"50.00","precio_bulto":"78000.00","fecha_cosecha":"2026-09-01T00:00:00.000Z","fecha_publicacion":"2026-09-08T00:00:00.000Z","estado":"DISPONIBLE","descripcion":"Apto para industria, calibre uniforme","variedad_id":2,"variedad":"Capiro","calibre_id":2,"calibre":"Segunda","productor_id":1,"productor":"Jose Rodriguez","productor_telefono":"3001112233","productor_correo":"jose.rodriguez@pruebas.papacol.local","municipio_id":1,"municipio":"Carmen de Carupa"},{"lote_id":1,"cantidad_bultos":40,"peso_bulto_kg":"50.00","precio_bulto":"95000.00","fecha_cosecha":"2026-09-05T00:00:00.000Z","fecha_publicacion":"2026-09-08T00:00:00.0
+
+--- RF-09 Filtro por variedad y orden descendente (esperado 200)
+GET /catalogo?variedadId=1&orden=precio_desc
+Codigo HTTP: 200
+{"exito":true,"lotes":[{"lote_id":1,"cantidad_bultos":40,"peso_bulto_kg":"50.00","precio_bulto":"95000.00","fecha_cosecha":"2026-09-05T00:00:00.000Z","fecha_publicacion":"2026-09-08T00:00:00.000Z","estado":"DISPONIBLE","descripcion":"Lote cosechado en la vereda Hato Viejo, seleccionado a mano","variedad_id":1,"variedad":"Parda Pastusa","calibre_id":1,"calibre":"Primera","productor_id":1,"productor":"Jose Rodriguez","productor_telefono":"3001112233","productor_correo":"jose.rodriguez@pruebas.papacol.local","municipio_id":1,"municipio":"Carmen de Carupa"}],"paginacion":{"pagina":1,"limite":20,"total":1,"totalPaginas":1},"filtrosAplicados":{"variedadId":1,"calibreId":null,"municipioId":null,"pr
+
+--- RF-09 Filtro por municipio, precio y paginacion (esperado 200)
+GET /catalogo?municipioId=1&precioMax=100000&limite=2&pagina=1
+Codigo HTTP: 200
+{"exito":true,"lotes":[{"lote_id":2,"cantidad_bultos":25,"peso_bulto_kg":"50.00","precio_bulto":"78000.00","fecha_cosecha":"2026-09-01T00:00:00.000Z","fecha_publicacion":"2026-09-08T00:00:00.000Z","estado":"DISPONIBLE","descripcion":"Apto para industria, calibre uniforme","variedad_id":2,"variedad":"Capiro","calibre_id":2,"calibre":"Segunda","productor_id":1,"productor":"Jose Rodriguez","productor_telefono":"3001112233","productor_correo":"jose.rodriguez@pruebas.papacol.local","municipio_id":1,"municipio":"Carmen de Carupa"},{"lote_id":1,"cantidad_bultos":40,"peso_bulto_kg":"50.00","precio_bulto":"95000.00","fecha_cosecha":"2026-09-05T00:00:00.000Z","fecha_publicacion":"2026-09-08T00:00:00.0
+
+--- Parametro invalido (esperado 400)
+GET /catalogo?variedadId=abc
+Codigo HTTP: 400
+{"exito":false,"mensaje":"Los parametros de la consulta no son validos.","detalles":["variedadId debe ser un entero positivo."]}
+
+--- RF-10 Detalle de un lote disponible (esperado 200)
+GET /catalogo/1
+Codigo HTTP: 200
+{"exito":true,"datos":{"lote_id":1,"cantidad_bultos":40,"peso_bulto_kg":"50.00","precio_bulto":"95000.00","fecha_cosecha":"2026-09-05T00:00:00.000Z","fecha_publicacion":"2026-09-08T00:00:00.000Z","estado":"DISPONIBLE","descripcion":"Lote cosechado en la vereda Hato Viejo, seleccionado a mano","variedad_id":1,"variedad":"Parda Pastusa","calibre_id":1,"calibre":"Primera","productor_id":1,"productor":"Jose Rodriguez","productor_telefono":"3001112233","productor_correo":"jose.rodriguez@pruebas.papacol.local","municipio_id":1,"municipio":"Carmen de Carupa"}}
+
+--- RN-07 Detalle de un lote RESERVADO (esperado 404)
+GET /catalogo/4
+Codigo HTTP: 404
+{"exito":false,"mensaje":"El lote no se encuentra disponible en el catalogo publico."}
+
+--- Lote inexistente (esperado 404)
+GET /catalogo/9999
+Codigo HTTP: 404
+{"exito":false,"mensaje":"El lote solicitado no existe."}
+
+======================================================================
+ FIN DE LA EVIDENCIA
+======================================================================
