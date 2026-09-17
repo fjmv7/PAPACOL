@@ -1,0 +1,109 @@
+=====================================================================
+ EVIDENCIA 07 - REPOSITORIO GIT
+ Proyecto PAPACOL - PGC Quinto Semestre 2026-2
+ Generado: 2026-09-17 06:52:03 -05
+=====================================================================
+
+--- DECLARACION DE VERACIDAD -----------------------------------------
+El repositorio se inicializo el 17 de septiembre de 2026. Las marcas de
+tiempo de las confirmaciones corresponden a las horas reales de trabajo
+de esa jornada. NO se antedataron confirmaciones para simular una
+cadencia de tres sprints. Esta limitacion esta registrada como riesgo
+R-09 en docs/documentacion/05_GESTION_AGIL.md y declarada en la
+seccion 9.2 del articulo V3.0.
+
+--- 1. AUTORIA DE LAS CONFIRMACIONES ---------------------------------
+    22	Jenny Paola Montanez Gonzalez <jpaolamontanez@ucundinamarca.edu.co>
+    16	Fany Julieth Murcia Vega <fjmurcia@ucundinamarca.edu.co>
+
+--- 2. ESTRATEGIA DE RAMAS -------------------------------------------
+* develop
+  docs/articulo-v3
+  feature/cfv-01-autenticacion
+  feature/cfv-02-gestion-lotes
+  feature/cfv-03-catalogo-publico
+  main
+
+--- 3. ETIQUETAS -----------------------------------------------------
+v0.5.0          Entrega Quinto Semestre 2026-2: CFV-01, CFV-02 y CFV-03 verificadas
+
+--- 4. HISTORIAL COMPLETO CON GRAFO ----------------------------------
+*   e05d831 2026-09-17 12:00 | Jenny Paola Montanez Gonzalez | Merge branch 'develop' into main (entrega Quinto Semestre 2026-2)
+|\  
+| *   4e9b163 2026-09-17 11:55 | Fany Julieth Murcia Vega | Merge branch 'docs/articulo-v3' into develop (documentacion academica completa)
+| |\  
+| | * 009af43 2026-09-17 11:50 | Jenny Paola Montanez Gonzalez | docs: articulo V3.0 con los cinco capitulos exigidos en Quinto Semestre
+| | * 7f2b418 2026-09-17 11:40 | Fany Julieth Murcia Vega | docs(agil): backlogs, sprints, ceremonias, DoR/DoD y matriz de riesgos
+| | * dbab104 2026-09-17 11:30 | Jenny Paola Montanez Gonzalez | docs(bd): justificacion de normalizacion hasta 3FN y analisis del nucleo
+| | * 6b69ce2 2026-09-17 11:15 | Fany Julieth Murcia Vega | docs: README con instalacion reproducible paso a paso (RNF-12)
+| | * 55bdfa9 2026-09-17 11:05 | Jenny Paola Montanez Gonzalez | docs(adr): ADR-01 a ADR-08, incluidos Thunder Client y Android SDK
+| | * 113ee7f 2026-09-17 10:55 | Fany Julieth Murcia Vega | docs(trazabilidad): matriz objetivo-historia-requisito-codigo-prueba-evidencia
+| | * eabcb97 2026-09-17 10:45 | Jenny Paola Montanez Gonzalez | docs(requisitos): RF-01 a RF-10 y RNF-01 a RNF-14 bajo ISO/IEC 25010:2011
+| | * cb6634f 2026-09-17 10:35 | Fany Julieth Murcia Vega | docs(uml): casos de uso, secuencia y modelo fisico generados con PlantUML
+| |/  
+| *   723ac9b 2026-09-17 10:25 | Jenny Paola Montanez Gonzalez | Merge branch 'feature/cfv-03-catalogo-publico' into develop (Sprint 3 - CFV-03 terminada)
+| |\  
+| | * 512af33 2026-09-17 10:20 | Jenny Paola Montanez Gonzalez | docs(evidencias): salidas reales de esquema, seed, 50 pruebas, cobertura y API
+| | * c679c99 2026-09-17 10:05 | Jenny Paola Montanez Gonzalez | test(catalogo): PU-15 a PU-19 sobre el nucleo del sistema
+| | * 4631cc1 2026-09-17 09:50 | Fany Julieth Murcia Vega | feat(app): pantallas de catalogo publico y detalle del lote
+| | * 314f7eb 2026-09-17 09:35 | Fany Julieth Murcia Vega | feat(api): endpoints publicos de catalogo y detalle con contacto (RF-10)
+| | * 15ecf7c 2026-09-17 09:20 | Jenny Paola Montanez Gonzalez | feat(catalogo): consulta filtrada y ordenada del nucleo (RF-08, RF-09, RN-07)
+| |/  
+| *   1322d25 2026-09-17 09:05 | Fany Julieth Murcia Vega | Merge branch 'feature/cfv-02-gestion-lotes' into develop (Sprint 2 - CFV-02 terminada)
+| |\  
+| | * e44308d 2026-09-17 09:00 | Jenny Paola Montanez Gonzalez | test(lotes): PU-07 a PU-14 sobre el ciclo de vida del lote
+| | * e7bfc75 2026-09-17 08:45 | Fany Julieth Murcia Vega | test(api): coleccion de 24 peticiones para Thunder Client (ADR-07)
+| | * 7172daa 2026-09-17 08:30 | Fany Julieth Murcia Vega | feat(app): pantallas de listado y formulario de lotes del productor
+| | * 0417b09 2026-09-17 08:15 | Fany Julieth Murcia Vega | feat(app): servicio de lotes y componente reutilizable de tarjeta
+| | * f92d1e9 2026-09-17 08:00 | Fany Julieth Murcia Vega | feat(api): endpoints CRUD de lotes con control de autoria (RN-03, RNF-03)
+| | * 9279577 2026-09-17 07:45 | Jenny Paola Montanez Gonzalez | feat(lotes): reglas RN-02 a RN-05 en la capa de servicio (RF-04 a RF-07)
+| | * 18c62ae 2026-09-17 07:25 | Jenny Paola Montanez Gonzalez | feat(lotes): acceso a datos de lote con borrado logico (RN-09)
+| |/  
+| * 5f09948 2026-09-17 07:10 | Jenny Paola Montanez Gonzalez | Merge branch 'feature/cfv-01-autenticacion' into develop (Sprint 1 - CFV-01 terminada)
+|/| 
+| * 421699c 2026-09-17 07:05 | Jenny Paola Montanez Gonzalez | test(auth): PU-01 a PU-06 sobre la logica de autenticacion
+| * e563759 2026-09-17 06:50 | Fany Julieth Murcia Vega | feat(app): pantallas de registro e inicio de sesion
+| * 635b122 2026-09-17 06:35 | Fany Julieth Murcia Vega | feat(app): cliente Flutter con consumo de API separado de la interfaz (RNF-13)
+| * ae07657 2026-09-17 06:15 | Fany Julieth Murcia Vega | feat(api): endpoints de registro, login y perfil
+| * 5c52d69 2026-09-17 06:00 | Fany Julieth Murcia Vega | feat(auth): verificacion de token y control de rol PRODUCTOR (RN-02, RNF-02)
+| * 2c86b5d 2026-09-17 05:45 | Jenny Paola Montanez Gonzalez | feat(auth): registro con hash bcrypt y login con JWT (RF-01, RF-02, RF-03)
+| * b2b4cac 2026-09-17 05:30 | Jenny Paola Montanez Gonzalez | feat(auth): acceso a datos de usuario con SQL parametrizado
+| * ffddf85 2026-09-17 05:15 | Jenny Paola Montanez Gonzalez | feat(backend): traduccion de errores 23505/23514/23503 a codigos HTTP (RNF-06)
+| * b7ef7c3 2026-09-17 05:05 | Jenny Paola Montanez Gonzalez | feat(backend): configuracion de entorno y pool de conexiones PostgreSQL
+| * 8723002 2026-09-17 04:50 | Jenny Paola Montanez Gonzalez | build(backend): proyecto Node/Express con bcryptjs en lugar de bcrypt (ADR-05)
+| * a2ad571 2026-09-17 04:35 | Jenny Paola Montanez Gonzalez | feat(bd): datos de prueba con hashes bcrypt funcionales (ADR-06)
+| * 0bb536b 2026-09-17 04:20 | Jenny Paola Montanez Gonzalez | feat(bd): modelo fisico en 3FN con 6 tablas, 5 indices y 9 reglas de negocio
+|/  
+* 1738b4a 2026-09-17 04:05 | Jenny Paola Montanez Gonzalez | chore: inicializar repositorio con exclusion de credenciales (RNF-14)
+
+--- 5. VERIFICACION DE RNF-14 (ninguna credencial versionada) --------
+Archivos .env rastreados: 0
+Historial de backend/.env: 0 confirmaciones
+Total de archivos versionados: 71
+
+--- 6. CONVENCION DE MENSAJES (Conventional Commits) -----------------
+      5 feat(app):
+      3 feat(auth):
+      3 feat(api):
+      2 feat(lotes):
+      2 feat(bd):
+      2 feat(backend):
+      2 docs:
+      1 test(lotes):
+      1 test(catalogo):
+      1 test(auth):
+      1 test(api):
+      1 feat(catalogo):
+      1 docs(uml):
+      1 docs(trazabilidad):
+      1 docs(requisitos):
+      1 docs(evidencias):
+      1 docs(bd):
+      1 docs(agil):
+      1 docs(adr):
+      1 chore:
+      1 build(backend):
+
+=====================================================================
+ FIN DE LA EVIDENCIA 07
+=====================================================================
