@@ -1,0 +1,80 @@
+PASS tests/auth.service.test.js
+  PU-01 validarDatosRegistro — validacion de campos obligatorios
+    ✓ acepta un conjunto de datos completo y correcto (3 ms)
+    ✓ rechaza una contrasena de menos de 8 caracteres (1 ms)
+    ✓ rechaza un correo con formato invalido (1 ms)
+    ✓ rechaza un rol que no existe en el sistema
+    ✓ acumula varios errores en una sola respuesta (1 ms)
+  PU-02 registrar — RN-01: el correo es unico en todo el sistema
+    ✓ rechaza el registro si el correo ya existe (1 ms)
+    ✓ rechaza el registro si la identificacion ya existe (1 ms)
+  PU-03 registrar — RN-08: la contrasena nunca se persiste en texto plano
+    ✓ envia al modelo un hash bcrypt, no la contrasena original (214 ms)
+    ✓ normaliza el correo a minusculas antes de persistirlo (RN-01) (88 ms)
+  PU-04 autenticar — RF-03
+    ✓ devuelve un token cuando las credenciales son correctas (93 ms)
+    ✓ rechaza con 401 una contrasena incorrecta (88 ms)
+    ✓ no revela si el correo existe: mismo mensaje para usuario inexistente (18 ms)
+  PU-05 autenticar — cuenta inactiva
+    ✓ rechaza con 403 una cuenta en estado INACTIVO (177 ms)
+  PU-06 generarToken — RNF-02
+    ✓ el token incluye el identificador y el rol del usuario (1 ms)
+
+PASS tests/lote.service.test.js
+  PU-07 validarDatosLote — RN-04: cantidad y precio mayores que cero
+    ✓ acepta un lote con datos correctos (1 ms)
+    ✓ rechaza cantidad de bultos igual a cero
+    ✓ rechaza precio negativo
+    ✓ rechaza cantidad de bultos decimal
+  PU-08 validarDatosLote — RN-05: la cosecha no puede ser posterior a la publicacion
+    ✓ rechaza una fecha de cosecha futura respecto a la publicacion
+    ✓ acepta cosecha y publicacion el mismo dia (1 ms)
+  PU-09 validarDatosLote — RN-06: estados controlados
+    ✓ rechaza un estado que no pertenece al dominio (1 ms)
+    ✓ acepta el estado DISPONIBLE
+    ✓ acepta el estado RESERVADO
+    ✓ acepta el estado VENDIDO
+    ✓ acepta el estado RETIRADO (1 ms)
+  PU-10 verificarEsProductor — RN-02
+    ✓ un comprador no puede publicar lotes
+    ✓ un productor si puede publicar lotes (1 ms)
+  PU-11 verificarAutoria — RN-03: solo el autor modifica su lote
+    ✓ rechaza la modificacion de un lote ajeno
+    ✓ permite la modificacion del lote propio (1 ms)
+    ✓ devuelve 404 si el lote no existe
+  PU-12 retirarLote — RN-09: el retiro es logico, no fisico
+    ✓ invoca retirar() y nunca un borrado fisico (1 ms)
+    ✓ rechaza retirar dos veces el mismo lote
+  PU-13 actualizarLote — un lote retirado es inmutable
+    ✓ rechaza modificar un lote en estado RETIRADO (1 ms)
+  PU-14 listarMisLotes — RF-05
+    ✓ consulta unicamente los lotes del productor autenticado
+    ✓ un comprador no puede consultar la vista de gestion
+
+PASS tests/catalogo.service.test.js
+  PU-15 normalizarFiltros — valores por defecto
+    ✓ aplica orden por precio ascendente y primera pagina cuando no se indica nada (1 ms)
+    ✓ calcula correctamente el desplazamiento de la pagina 3 (1 ms)
+  PU-16 normalizarFiltros — proteccion frente a parametros invalidos
+    ✓ rechaza un identificador de variedad no numerico (11 ms)
+    ✓ rechaza un criterio de ordenamiento desconocido
+    ✓ limita el tamano de pagina al maximo permitido
+    ✓ rechaza un precio maximo negativo (1 ms)
+  PU-17 consultarCatalogo — paginacion
+    ✓ calcula el total de paginas a partir del total de registros
+    ✓ devuelve al menos una pagina cuando no hay resultados
+    ✓ traslada los filtros al modelo tal como fueron normalizados (1 ms)
+  PU-18 consultarDetalle — RN-07: el catalogo publico solo expone lotes DISPONIBLE
+    ✓ devuelve el lote cuando esta disponible
+    ✓ oculta con 404 un lote en estado RESERVADO
+    ✓ oculta con 404 un lote en estado VENDIDO
+    ✓ oculta con 404 un lote en estado RETIRADO
+  PU-19 consultarDetalle — validacion del identificador
+    ✓ rechaza un identificador no numerico (1 ms)
+    ✓ devuelve 404 cuando el lote no existe
+
+Test Suites: 3 passed, 3 total
+Tests:       50 passed, 50 total
+Snapshots:   0 total
+Time:        1.207 s, estimated 2 s
+Ran all test suites.
