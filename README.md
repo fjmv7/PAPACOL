@@ -1,6 +1,6 @@
 # PAPACOL
 
-**Aplicación móvil para la comercialización de papa desde Carmen de Carupa hacia la Villa de San Diego de Ubaté**
+**Multiplataforma para la comercialización de papa desde Carmen de Carupa hacia la Villa de San Diego de Ubaté**
 
 Proyecto de Gestión del Conocimiento (PGC) — Quinto Semestre, Ciclo II 2026-2
 Universidad de Cundinamarca — Seccional Ubaté · Ingeniería de Sistemas y Computación
