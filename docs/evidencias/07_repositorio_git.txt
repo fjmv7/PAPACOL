@@ -1,7 +1,8 @@
 =====================================================================
  EVIDENCIA 07 - REPOSITORIO GIT
  Proyecto PAPACOL - PGC Quinto Semestre 2026-2
- Generado: 2026-09-17 06:52:03 -05
+ Universidad de Cundinamarca - Seccional Ubate
+ Generado: 2026-09-17 06:56:14 -05
 =====================================================================
 
 --- DECLARACION DE VERACIDAD -----------------------------------------
@@ -9,14 +10,20 @@ El repositorio se inicializo el 17 de septiembre de 2026. Las marcas de
 tiempo de las confirmaciones corresponden a las horas reales de trabajo
 de esa jornada. NO se antedataron confirmaciones para simular una
 cadencia de tres sprints. Esta limitacion esta registrada como riesgo
-R-09 en docs/documentacion/05_GESTION_AGIL.md y declarada en la
-seccion 9.2 del articulo V3.0.
+R-09 en docs/documentacion/05_GESTION_AGIL.md, declarada en la seccion
+9.2 del articulo V3.0 y analizada en el criterio C9 de
+docs/documentacion/08_MATRIZ_CUMPLIMIENTO_RUBRICA.md.
+
+Los conteos siguientes corresponden al estado del repositorio en el
+momento de generar esta evidencia. La confirmacion que registra este
+mismo archivo y su fusion hacia main son posteriores a esta marca.
 
 --- 1. AUTORIA DE LAS CONFIRMACIONES ---------------------------------
     22	Jenny Paola Montanez Gonzalez <jpaolamontanez@ucundinamarca.edu.co>
-    16	Fany Julieth Murcia Vega <fjmurcia@ucundinamarca.edu.co>
+    18	Fany Julieth Murcia Vega <fjmurcia@ucundinamarca.edu.co>
+Total: 40 confirmaciones
 
---- 2. ESTRATEGIA DE RAMAS -------------------------------------------
+--- 2. ESTRATEGIA DE RAMAS (GitFlow reducido) ------------------------
 * develop
   docs/articulo-v3
   feature/cfv-01-autenticacion
@@ -27,9 +34,45 @@ seccion 9.2 del articulo V3.0.
 --- 3. ETIQUETAS -----------------------------------------------------
 v0.5.0          Entrega Quinto Semestre 2026-2: CFV-01, CFV-02 y CFV-03 verificadas
 
---- 4. HISTORIAL COMPLETO CON GRAFO ----------------------------------
-*   e05d831 2026-09-17 12:00 | Jenny Paola Montanez Gonzalez | Merge branch 'develop' into main (entrega Quinto Semestre 2026-2)
+--- 4. DISTRIBUCION POR TIPO (Conventional Commits) ------------------
+      5 feat(app):
+      4 docs:
+      3 feat(auth):
+      3 feat(api):
+      2 feat(lotes):
+      2 feat(bd):
+      2 feat(backend):
+      2 docs(evidencias):
+      1 test(lotes):
+      1 test(catalogo):
+      1 test(auth):
+      1 test(api):
+      1 feat(catalogo):
+      1 docs(uml):
+      1 docs(trazabilidad):
+      1 docs(requisitos):
+      1 docs(bd):
+      1 docs(agil):
+      1 docs(adr):
+      1 chore:
+      1 build(backend):
+
+--- 5. VERIFICACION DE RNF-14 (ninguna credencial versionada) --------
+Archivos .env rastreados      : 0
+Confirmaciones sobre .env     : 0
+node_modules rastreado        : 0
+Total de archivos versionados : 73
+
+--- 6. HISTORIAL COMPLETO CON GRAFO ----------------------------------
+*   fbfad10 2026-09-17 12:45 | Jenny Paola Montanez Gonzalez | Merge branch 'develop' into main (matriz de rubrica y README final)
 |\  
+| * 30f8f86 2026-09-17 12:40 | Jenny Paola Montanez Gonzalez | docs: matriz de cumplimiento contra los 10 criterios de la rubrica
+| * 6e49d76 2026-09-17 12:30 | Fany Julieth Murcia Vega | docs: estrategia de ramas e indice documental en el README
+* | cc7abd5 2026-09-17 12:15 | Jenny Paola Montanez Gonzalez | Merge branch 'develop' into main (evidencia del repositorio)
+|\| 
+| * 459ab02 2026-09-17 12:10 | Fany Julieth Murcia Vega | docs(evidencias): historial del repositorio y verificacion de RNF-14
+* | e05d831 2026-09-17 12:00 | Jenny Paola Montanez Gonzalez | Merge branch 'develop' into main (entrega Quinto Semestre 2026-2)
+|\| 
 | *   4e9b163 2026-09-17 11:55 | Fany Julieth Murcia Vega | Merge branch 'docs/articulo-v3' into develop (documentacion academica completa)
 | |\  
 | | * 009af43 2026-09-17 11:50 | Jenny Paola Montanez Gonzalez | docs: articulo V3.0 con los cinco capitulos exigidos en Quinto Semestre
@@ -75,34 +118,6 @@ v0.5.0          Entrega Quinto Semestre 2026-2: CFV-01, CFV-02 y CFV-03 verifica
 | * 0bb536b 2026-09-17 04:20 | Jenny Paola Montanez Gonzalez | feat(bd): modelo fisico en 3FN con 6 tablas, 5 indices y 9 reglas de negocio
 |/  
 * 1738b4a 2026-09-17 04:05 | Jenny Paola Montanez Gonzalez | chore: inicializar repositorio con exclusion de credenciales (RNF-14)
-
---- 5. VERIFICACION DE RNF-14 (ninguna credencial versionada) --------
-Archivos .env rastreados: 0
-Historial de backend/.env: 0 confirmaciones
-Total de archivos versionados: 71
-
---- 6. CONVENCION DE MENSAJES (Conventional Commits) -----------------
-      5 feat(app):
-      3 feat(auth):
-      3 feat(api):
-      2 feat(lotes):
-      2 feat(bd):
-      2 feat(backend):
-      2 docs:
-      1 test(lotes):
-      1 test(catalogo):
-      1 test(auth):
-      1 test(api):
-      1 feat(catalogo):
-      1 docs(uml):
-      1 docs(trazabilidad):
-      1 docs(requisitos):
-      1 docs(evidencias):
-      1 docs(bd):
-      1 docs(agil):
-      1 docs(adr):
-      1 chore:
-      1 build(backend):
 
 =====================================================================
  FIN DE LA EVIDENCIA 07
