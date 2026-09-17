@@ -280,9 +280,56 @@ La carpeta `docs/evidencias/` contiene la salida **real** de cada ejecución, no
 | `04_pruebas_unitarias.txt` | 50 pruebas unitarias ejecutadas |
 | `05_cobertura_pruebas.txt` | 88,95 % de cobertura de sentencias sobre `src/services/` |
 | `06_ejecucion_api_end_to_end.txt` | 24 peticiones HTTP con su código de respuesta real |
+| `07_repositorio_git.txt` | Historial completo del repositorio, autoría por integrante y verificación de RNF-14 |
 
 ---
 
-## 10. Licencia
+## 10. Control de versiones
+
+El repositorio sigue una variante reducida de GitFlow, declarada en `docs/documentacion/05_GESTION_AGIL.md` seccion 10.
+
+```
+main                 solo versiones entregables (etiquetadas)
+ └── develop         integracion continua del equipo
+      ├── feature/cfv-01-autenticacion
+      ├── feature/cfv-02-gestion-lotes
+      ├── feature/cfv-03-catalogo-publico
+      └── docs/articulo-v3
+```
+
+**Reglas:** ninguna confirmacion directa sobre `main`; cada rama `feature/` corresponde a una capacidad funcional verificable completa; las fusiones hacia `develop` usan `--no-ff` para conservar la existencia de la rama en el historial; `main` se etiqueta al cierre de cada semestre.
+
+**Estado actual:** 40 confirmaciones · 23 de Jenny Paola Montanez Gonzalez y 17 de Fany Julieth Murcia Vega · etiqueta `v0.5.0` (entrega Quinto Semestre 2026-2).
+
+Comandos de verificacion:
+
+```bash
+git shortlog -sne main          # autoria de las confirmaciones
+git log --graph --oneline --all # historial con ramas
+git tag -n                      # etiquetas
+git ls-files | grep '\.env$'    # debe devolver vacio (RNF-14)
+```
+
+> **Declaracion.** El repositorio se inicializo el 17 de septiembre de 2026. No se antedataron confirmaciones para simular una cadencia de tres sprints. La limitacion esta registrada como riesgo R-09.
+
+---
+
+## 11. Indice de la documentacion
+
+| Documento | Contenido |
+|---|---|
+| `docs/requisitos/01_ESPECIFICACION_RF_RNF.md` | RF-01 a RF-10 y RNF-01 a RNF-14 bajo ISO/IEC 25010:2011 |
+| `docs/requisitos/02_ANEXO_A_HISTORIAS_USUARIO.md` | HU-01 a HU-10 con criterios Given/When/Then |
+| `docs/requisitos/04_MATRIZ_TRAZABILIDAD.md` | Cadena objetivo → historia → RF → CU → tabla → codigo → prueba → evidencia |
+| `docs/documentacion/03_ANEXO_B_ADR.md` | Decisiones de arquitectura ADR-01 a ADR-08 |
+| `docs/documentacion/04_DISENO_BASE_DATOS.md` | Normalizacion hasta 3FN, diccionario de datos, analisis del nucleo |
+| `docs/documentacion/05_GESTION_AGIL.md` | Backlogs, sprints, ceremonias, retrospectivas, riesgos, cronograma |
+| `docs/documentacion/DEFINITION_OF_DONE.md` | DoD y DoR publicadas (criterio C8) |
+| `docs/documentacion/07_ARTICULO_V3_0.md` | Articulo academico completo de Quinto Semestre |
+| `docs/documentacion/08_MATRIZ_CUMPLIMIENTO_RUBRICA.md` | Autoevaluacion contra los 10 criterios de la rubrica |
+
+---
+
+## 12. Licencia
 
 Proyecto académico. Universidad de Cundinamarca, Seccional Ubaté, 2026.
