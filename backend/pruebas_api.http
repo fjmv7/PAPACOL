@@ -1,0 +1,198 @@
+###############################################################################
+# PAPACOL — COLECCION DE PRUEBAS DE LA API
+#
+# Herramienta: Thunder Client (extension de Visual Studio Code).
+# Thunder Client reemplaza a Postman en este proyecto: es gratuito, se ejecuta
+# dentro de VS Code y no exige cuenta de usuario (ver ADR-07).
+#
+# COMO USARLO
+#   1. Instalar en VS Code la extension "Thunder Client" (rangav.vscode-thunder-client).
+#   2. Levantar el backend:   cd backend && npm start
+#   3. Abrir este archivo en VS Code. Thunder Client muestra un boton "Send Request"
+#      sobre cada bloque que empieza por ###. Tambien funciona con la extension
+#      "REST Client" (humao.rest-client).
+#   4. Ejecutar las peticiones en orden: el token se captura en la variable
+#      @token despues del login (pegarlo manualmente si su version no soporta
+#      variables dinamicas).
+#
+# El script backend/pruebas_api.sh ejecuta exactamente esta misma secuencia
+# desde la terminal y genera la evidencia de docs/evidencias/06.
+###############################################################################
+
+@host = http://localhost:3000/api/v1
+@token = PEGAR_AQUI_EL_TOKEN_DEVUELTO_POR_EL_LOGIN
+
+### 00 — Comprobacion de servicio                         (esperado 200)
+GET {{host}}/salud
+
+### 01 — Catalogos de referencia para los formularios      (esperado 200)
+GET {{host}}/referencias
+
+###############################################################################
+# CFV-01 — REGISTRO Y AUTENTICACION
+###############################################################################
+
+### 02 — RF-01 Registrar un productor                      (esperado 201)
+POST {{host}}/auth/registro
+Content-Type: application/json
+
+{
+  "identificacion": "1070707070",
+  "nombre": "Pedro",
+  "apellido": "Gomez",
+  "correo": "pedro.gomez@pruebas.papacol.local",
+  "telefono": "3007778899",
+  "contrasena": "Clave.Seg2026",
+  "rol": "PRODUCTOR",
+  "municipioId": 1
+}
+
+### 03 — RF-02 Registrar un comprador                      (esperado 201)
+POST {{host}}/auth/registro
+Content-Type: application/json
+
+{
+  "identificacion": "1080808080",
+  "nombre": "Sofia",
+  "apellido": "Ramirez",
+  "correo": "sofia.ramirez@pruebas.papacol.local",
+  "telefono": "3006665544",
+  "contrasena": "Clave.Seg2026",
+  "rol": "COMPRADOR",
+  "municipioId": 2
+}
+
+### 04 — RN-01 Correo duplicado                            (esperado 409)
+POST {{host}}/auth/registro
+Content-Type: application/json
+
+{
+  "identificacion": "1090909090",
+  "nombre": "Repetido",
+  "apellido": "Correo",
+  "correo": "pedro.gomez@pruebas.papacol.local",
+  "telefono": "3001112233",
+  "contrasena": "Clave.Seg2026",
+  "rol": "PRODUCTOR",
+  "municipioId": 1
+}
+
+### 05 — Validacion de entradas                            (esperado 400)
+POST {{host}}/auth/registro
+Content-Type: application/json
+
+{ "identificacion": "12", "nombre": "A", "correo": "sin-arroba", "contrasena": "123", "rol": "JEFE" }
+
+### 06 — RF-03 Login correcto (COPIAR el token de la respuesta)  (esperado 200)
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{ "correo": "jose.rodriguez@pruebas.papacol.local", "contrasena": "Productor.2026" }
+
+### 07 — RF-03 Contrasena incorrecta                       (esperado 401)
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{ "correo": "jose.rodriguez@pruebas.papacol.local", "contrasena": "equivocada" }
+
+### 08 — Perfil del usuario autenticado                    (esperado 200)
+GET {{host}}/auth/perfil
+Authorization: Bearer {{token}}
+
+### 09 — RNF-02 Peticion sin token                         (esperado 401)
+GET {{host}}/auth/perfil
+
+###############################################################################
+# CFV-02 — GESTION DE LOTES DEL PRODUCTOR
+###############################################################################
+
+### 10 — RF-04 Publicar un lote                            (esperado 201)
+POST {{host}}/lotes
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "variedadId": 1,
+  "calibreId": 1,
+  "cantidadBultos": 30,
+  "pesoBultoKg": 50,
+  "precioBulto": 91000,
+  "fechaCosecha": "2026-09-10",
+  "descripcion": "Lote publicado desde Thunder Client"
+}
+
+### 11 — RN-04 Precio en cero                              (esperado 400)
+POST {{host}}/lotes
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{ "variedadId": 1, "calibreId": 1, "cantidadBultos": 10, "pesoBultoKg": 50, "precioBulto": 0, "fechaCosecha": "2026-09-01" }
+
+### 12 — RN-05 Cosecha posterior a la publicacion          (esperado 400)
+POST {{host}}/lotes
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{ "variedadId": 1, "calibreId": 1, "cantidadBultos": 10, "pesoBultoKg": 50, "precioBulto": 70000, "fechaCosecha": "2027-01-01" }
+
+### 13 — RN-02 Un COMPRADOR intenta publicar (usar token de comprador)  (esperado 403)
+POST {{host}}/lotes
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{ "variedadId": 1, "calibreId": 1, "cantidadBultos": 10, "pesoBultoKg": 50, "precioBulto": 70000, "fechaCosecha": "2026-09-01" }
+
+### 14 — RF-05 Consultar mis lotes                         (esperado 200)
+GET {{host}}/lotes/mios
+Authorization: Bearer {{token}}
+
+### 15 — RF-06 Modificar un lote propio (ajustar el :id)   (esperado 200)
+PUT {{host}}/lotes/1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "variedadId": 1,
+  "calibreId": 1,
+  "cantidadBultos": 38,
+  "pesoBultoKg": 50,
+  "precioBulto": 97500,
+  "fechaCosecha": "2026-09-05",
+  "descripcion": "Precio ajustado"
+}
+
+### 16 — RN-03 Modificar un lote ajeno (token de otro productor)  (esperado 403)
+PUT {{host}}/lotes/3
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{ "variedadId": 1, "calibreId": 1, "cantidadBultos": 1, "pesoBultoKg": 50, "precioBulto": 1, "fechaCosecha": "2026-09-05" }
+
+### 17 — RF-07 / RN-09 Retiro logico del lote              (esperado 200)
+DELETE {{host}}/lotes/2
+Authorization: Bearer {{token}}
+
+###############################################################################
+# CFV-03 — CONSULTA PUBLICA DEL CATALOGO (sin token)
+###############################################################################
+
+### 18 — RF-08 Catalogo publico                            (esperado 200)
+GET {{host}}/catalogo
+
+### 19 — RF-09 Filtro por variedad, orden descendente      (esperado 200)
+GET {{host}}/catalogo?variedadId=1&orden=precio_desc
+
+### 20 — RF-09 Filtro por municipio, precio y paginacion   (esperado 200)
+GET {{host}}/catalogo?municipioId=1&precioMax=100000&limite=2&pagina=1
+
+### 21 — Parametro invalido                                (esperado 400)
+GET {{host}}/catalogo?variedadId=abc
+
+### 22 — RF-10 Detalle de un lote disponible               (esperado 200)
+GET {{host}}/catalogo/1
+
+### 23 — RN-07 Detalle de un lote RESERVADO                (esperado 404)
+GET {{host}}/catalogo/4
+
+### 24 — Lote inexistente                                  (esperado 404)
+GET {{host}}/catalogo/9999
