@@ -19,3 +19,5 @@ backend/coverage/lcov-report/
 Thumbs.db
 .vscode/settings.json
 .idea/
+
+backend/.env.
