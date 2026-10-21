@@ -226,11 +226,13 @@ class _FotoConZoom extends StatelessWidget {
   }
 }
 
-/// Encabezado con foto de fondo, para paneles y fichas.
+/// Sección con foto de fondo, para paneles, encabezados y fichas.
+/// Sin [alto] la sección crece con su contenido. El velo oscuro mantiene
+/// el contraste del texto blanco que va encima.
 class EncabezadoFoto extends StatelessWidget {
   final String ruta;
   final Widget child;
-  final double alto;
+  final double? alto;
   final double radio;
   const EncabezadoFoto(
       {super.key,
@@ -243,25 +245,30 @@ class EncabezadoFoto extends StatelessWidget {
   Widget build(BuildContext context) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(radio),
-      child: SizedBox(
-        height: alto,
-        child: Stack(fit: StackFit.expand, children: [
-          Image.asset(ruta,
+      child: Stack(children: [
+        Positioned.fill(
+          child: Image.asset(ruta,
               fit: BoxFit.cover,
+              filterQuality: FilterQuality.medium,
               errorBuilder: (_, __, ___) =>
                   ColoredBox(color: Theme.of(context).colorScheme.primary)),
-          const DecoratedBox(
+        ),
+        const Positioned.fill(
+          child: DecoratedBox(
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                colors: [Color(0x66000000), Color(0xC0000000)],
+                colors: [Color(0x73000000), Color(0xCC000000)],
               ),
             ),
           ),
-          child,
-        ]),
-      ),
+        ),
+        if (alto == null)
+          child
+        else
+          SizedBox(height: alto, width: double.infinity, child: child),
+      ]),
     );
   }
 }

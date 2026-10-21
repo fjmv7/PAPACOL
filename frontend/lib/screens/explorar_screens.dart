@@ -23,6 +23,25 @@ class ExplorarVista extends StatelessWidget {
     return Centrado(
       ancho: 960,
       child: ListView(padding: const EdgeInsets.all(16), children: [
+        const EncabezadoFoto(
+          ruta: Fotos.campoRuana,
+          alto: null,
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(18, 28, 18, 18),
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text('Conoce la papa de la región',
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 22,
+                      fontWeight: FontWeight.w800)),
+              SizedBox(height: 4),
+              Text('Variedades, productores y herramientas para comprar mejor.',
+                  style: TextStyle(color: Colors.white70)),
+            ]),
+          ),
+        ),
+        const SizedBox(height: 16),
         const TituloSeccion('Variedades de papa'),
         SizedBox(
           height: 176,
@@ -88,7 +107,8 @@ class _TarjetaVariedad extends StatelessWidget {
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: () => abrir(context, VariedadScreen(ficha: f)),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             SizedBox(
               height: 96,
               width: double.infinity,
@@ -137,9 +157,11 @@ class VariedadScreen extends StatelessWidget {
           ),
           const SizedBox(height: 20),
           Text(ficha.nombre,
-              style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w800)),
+              style:
+                  const TextStyle(fontSize: 26, fontWeight: FontWeight.w800)),
           const SizedBox(height: 10),
-          Text(ficha.descripcion, style: const TextStyle(fontSize: 16, height: 1.5)),
+          Text(ficha.descripcion,
+              style: const TextStyle(fontSize: 16, height: 1.5)),
           const SizedBox(height: 16),
           Container(
             padding: const EdgeInsets.all(14),
@@ -223,8 +245,10 @@ class _ListaProductoresState extends State<_ListaProductores> {
                         '${p.lotes.length} lote(s) · ${p.totalBultos} bultos'),
                     isThreeLine: true,
                     trailing: const Icon(Icons.chevron_right),
-                    onTap: () => abrir(context,
-                        ProductorPerfilScreen(productorId: p.id, nombre: p.nombre)),
+                    onTap: () => abrir(
+                        context,
+                        ProductorPerfilScreen(
+                            productorId: p.id, nombre: p.nombre)),
                   ),
                 ),
               ),
@@ -283,9 +307,8 @@ class _ProductorPerfilScreenState extends State<ProductorPerfilScreen> {
                 alReintentar: () =>
                     setState(() => _futuro = _servicio.productores()));
           }
-          final p = s.data!
-              .where((p) => p.id == widget.productorId)
-              .firstOrNull;
+          final p =
+              s.data!.where((p) => p.id == widget.productorId).firstOrNull;
           if (p == null) {
             return EstadoVacio(
                 icono: Icons.person_off_outlined,
@@ -354,7 +377,9 @@ class _Cifra extends StatelessWidget {
         child: Column(children: [
           Text(valor,
               style: TextStyle(
-                  fontSize: 24, fontWeight: FontWeight.w800, color: cs.primary)),
+                  fontSize: 24,
+                  fontWeight: FontWeight.w800,
+                  color: cs.primary)),
           Text(etiqueta, style: TextStyle(color: cs.onSurfaceVariant)),
         ]),
       ),
@@ -405,7 +430,9 @@ class _SimuladorPreciosScreenState extends State<SimuladorPreciosScreen> {
         _variedadId ??= r.variedades.isEmpty ? null : r.variedades.first.id;
       });
     } catch (_) {
-      if (mounted) setState(() => _error = 'No fue posible cargar los precios.');
+      if (mounted) {
+        setState(() => _error = 'No fue posible cargar los precios.');
+      }
     } finally {
       if (mounted) setState(() => _cargando = false);
     }
@@ -419,7 +446,8 @@ class _SimuladorPreciosScreenState extends State<SimuladorPreciosScreen> {
           ? const Center(child: CircularProgressIndicator())
           : _error != null
               ? EstadoError(mensaje: _error!, alReintentar: _cargar)
-              : Centrado(ancho: 560, child: _iniciado ? _simulador() : _intro()),
+              : Centrado(
+                  ancho: 560, child: _iniciado ? _simulador() : _intro()),
     );
   }
 
@@ -447,7 +475,8 @@ class _SimuladorPreciosScreenState extends State<SimuladorPreciosScreen> {
 
   Widget _simulador() {
     final cs = Theme.of(context).colorScheme;
-    final deVariedad = _lotes.where((l) => l.variedadId == _variedadId).toList();
+    final deVariedad =
+        _lotes.where((l) => l.variedadId == _variedadId).toList();
     final base = deVariedad.isNotEmpty ? deVariedad : _lotes;
     final preciosKg = base
         .where((l) => l.pesoBultoKg > 0)
@@ -458,8 +487,10 @@ class _SimuladorPreciosScreenState extends State<SimuladorPreciosScreen> {
     final promedio = preciosKg.isEmpty
         ? 0.0
         : preciosKg.reduce((a, b) => a + b) / preciosKg.length;
-    final minimo = preciosKg.isEmpty ? 0.0 : preciosKg.reduce((a, b) => a < b ? a : b);
-    final maximo = preciosKg.isEmpty ? 0.0 : preciosKg.reduce((a, b) => a > b ? a : b);
+    final minimo =
+        preciosKg.isEmpty ? 0.0 : preciosKg.reduce((a, b) => a < b ? a : b);
+    final maximo =
+        preciosKg.isEmpty ? 0.0 : preciosKg.reduce((a, b) => a > b ? a : b);
 
     return ListView(padding: const EdgeInsets.all(20), children: [
       CampoEtiquetado(

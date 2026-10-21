@@ -1,0 +1,3 @@
+NotoSerifDisplay-Bold.ttf: Noto Serif Display (Google), licencia SIL Open Font
+License 1.1. Permite usarla y distribuirla dentro de la aplicacion.
+Texto de la licencia: https://openfontlicense.org

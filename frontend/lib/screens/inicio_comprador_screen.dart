@@ -60,6 +60,11 @@ class _InicioCompradorScreenState extends State<InicioCompradorScreen> {
                 onPressed: () => abrir(context, const MensajesScreen()),
               ),
             ),
+            const IconButton(
+              tooltip: 'Cerrar sesión',
+              icon: Icon(Icons.logout),
+              onPressed: cerrarSesion,
+            ),
           ],
           const SizedBox(width: 4),
         ],
@@ -141,7 +146,9 @@ class _GuardadosVistaState extends State<GuardadosVista> {
 
   @override
   Widget build(BuildContext context) {
-    if (_error != null) return EstadoError(mensaje: _error!, alReintentar: _cargar);
+    if (_error != null) {
+      return EstadoError(mensaje: _error!, alReintentar: _cargar);
+    }
     if (_disponibles == null) {
       return const Center(child: CircularProgressIndicator());
     }

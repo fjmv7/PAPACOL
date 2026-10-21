@@ -3,6 +3,7 @@ import '../data/demo.dart';
 import '../state/sesion.dart';
 import '../utils/formato.dart';
 import '../widgets/comunes.dart';
+import '../widgets/fotos.dart';
 import 'contacto_screens.dart';
 import 'navegacion.dart';
 
@@ -37,8 +38,7 @@ class _Calendario extends StatefulWidget {
 }
 
 class _CalendarioState extends State<_Calendario> {
-  late DateTime _siembra =
-      DateTime.now().add(const Duration(days: 10));
+  late DateTime _siembra = DateTime.now().add(const Duration(days: 10));
   late DateTime _mes = DateTime(DateTime.now().year, DateTime.now().month);
   bool _cicloCorto = false;
 
@@ -74,11 +74,25 @@ class _CalendarioState extends State<_Calendario> {
     return Centrado(
       ancho: 640,
       child: ListView(padding: const EdgeInsets.all(16), children: [
-        const Text('Calendario de siembra',
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800)),
-        const SizedBox(height: 4),
-        Text('Elige tu fecha de siembra y PAPACOL te propone las labores.',
-            style: TextStyle(color: cs.onSurfaceVariant)),
+        const EncabezadoFoto(
+          ruta: Fotos.campoSurcos,
+          alto: null,
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(18, 30, 18, 18),
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text('Calendario de siembra',
+                  style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.white)),
+              SizedBox(height: 4),
+              Text(
+                  'Elige tu fecha de siembra y PAPACOL te propone las labores.',
+                  style: TextStyle(color: Colors.white70)),
+            ]),
+          ),
+        ),
         const SizedBox(height: 14),
         Card(
           child: Column(children: [
@@ -220,7 +234,8 @@ class _Mes extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: color?.withValues(alpha: 0.85),
                     borderRadius: BorderRadius.circular(10),
-                    border: esHoy ? Border.all(color: cs.primary, width: 2) : null,
+                    border:
+                        esHoy ? Border.all(color: cs.primary, width: 2) : null,
                   ),
                   alignment: Alignment.center,
                   child: Text('$d',
@@ -269,22 +284,29 @@ class _Clima extends StatelessWidget {
           ),
           child: Row(children: [
             Expanded(
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text('$municipio, Cund.',
-                    style: TextStyle(color: cs.onPrimary, fontWeight: FontWeight.w700)),
-                Text('${ahora.day} de ${nombreMes(ahora.month)} de ${ahora.year}',
-                    style: TextStyle(color: cs.onPrimary.withValues(alpha: 0.8))),
-                const SizedBox(height: 10),
-                Text('${hoy.maxima}°C',
-                    style: TextStyle(
-                        color: cs.onPrimary,
-                        fontSize: 54,
-                        fontWeight: FontWeight.w800)),
-                Text('${hoy.estado} · mínima ${hoy.minima}°C',
-                    style: TextStyle(color: cs.onPrimary.withValues(alpha: 0.9))),
-              ]),
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('$municipio, Cund.',
+                        style: TextStyle(
+                            color: cs.onPrimary, fontWeight: FontWeight.w700)),
+                    Text(
+                        '${ahora.day} de ${nombreMes(ahora.month)} de ${ahora.year}',
+                        style: TextStyle(
+                            color: cs.onPrimary.withValues(alpha: 0.8))),
+                    const SizedBox(height: 10),
+                    Text('${hoy.maxima}°C',
+                        style: TextStyle(
+                            color: cs.onPrimary,
+                            fontSize: 54,
+                            fontWeight: FontWeight.w800)),
+                    Text('${hoy.estado} · mínima ${hoy.minima}°C',
+                        style: TextStyle(
+                            color: cs.onPrimary.withValues(alpha: 0.9))),
+                  ]),
             ),
-            Icon(hoy.icono, size: 80, color: cs.onPrimary.withValues(alpha: 0.85)),
+            Icon(hoy.icono,
+                size: 80, color: cs.onPrimary.withValues(alpha: 0.85)),
           ]),
         ),
         const SizedBox(height: 16),
@@ -296,7 +318,8 @@ class _Clima extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   child: Column(children: [
-                    Text(d.dia, style: const TextStyle(fontWeight: FontWeight.w600)),
+                    Text(d.dia,
+                        style: const TextStyle(fontWeight: FontWeight.w600)),
                     const SizedBox(height: 8),
                     Icon(d.icono, color: cs.primary, size: 30),
                     const SizedBox(height: 8),
@@ -374,7 +397,9 @@ class _AsistenciaTecnicaScreenState extends State<AsistenciaTecnicaScreen> {
                     child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(t, style: const TextStyle(fontWeight: FontWeight.w700)),
+                          Text(t,
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.w700)),
                           const SizedBox(height: 2),
                           Text(d, style: const TextStyle(height: 1.4)),
                         ]),
@@ -393,11 +418,25 @@ class _AsistenciaTecnicaScreenState extends State<AsistenciaTecnicaScreen> {
       body: Centrado(
         ancho: 640,
         child: ListView(padding: const EdgeInsets.all(16), children: [
-          const Text('¡Cosechemos juntos!',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800)),
-          const SizedBox(height: 4),
-          Text('Guía paso a paso para tu cultivo de papa.',
-              style: TextStyle(color: cs.onSurfaceVariant)),
+          const EncabezadoFoto(
+            ruta: Fotos.cosechaRecoleccion,
+            alto: null,
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(18, 30, 18, 18),
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('¡Cosechemos juntos!',
+                        style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.white)),
+                    SizedBox(height: 4),
+                    Text('Guía paso a paso para tu cultivo de papa.',
+                        style: TextStyle(color: Colors.white70)),
+                  ]),
+            ),
+          ),
           const SizedBox(height: 14),
           SizedBox(
             height: 290,
@@ -470,7 +509,9 @@ class _AsistenciaTecnicaScreenState extends State<AsistenciaTecnicaScreen> {
                       curve: Curves.easeOut);
                 }
               },
-              child: Text(_paso < pasosGuia.length - 1 ? 'Siguiente' : 'Empezar de nuevo'),
+              child: Text(_paso < pasosGuia.length - 1
+                  ? 'Siguiente'
+                  : 'Empezar de nuevo'),
             ),
           ]),
           const SizedBox(height: 24),
