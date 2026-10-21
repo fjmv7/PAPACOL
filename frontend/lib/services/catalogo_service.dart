@@ -44,6 +44,26 @@ class CatalogoService {
     );
   }
 
+  /// Todos los lotes disponibles (hasta 100), para listas y cálculos
+  /// del lado del cliente: productores, simulador y novedades.
+  Future<List<Lote>> todos({String orden = 'reciente'}) async =>
+      (await consultar(orden: orden, limite: 100)).lotes;
+
+  /// Productores con oferta activa, agrupados a partir del catálogo público.
+  Future<List<Productor>> productores() async {
+    final porId = <int, Productor>{};
+    for (final l in await todos()) {
+      porId
+          .putIfAbsent(
+              l.productorId,
+              () => Productor(l.productorId, l.productor, l.municipio,
+                  l.productorTelefono, l.productorCorreo))
+          .lotes
+          .add(l);
+    }
+    return porId.values.toList()..sort((a, b) => a.nombre.compareTo(b.nombre));
+  }
+
   /// RF-10 — GET /catalogo/:id (200)
   Future<Lote> detalle(int id) async {
     final r = await _api.get('/catalogo/$id');

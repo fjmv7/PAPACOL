@@ -135,7 +135,7 @@ curl http://localhost:3000/api/v1/salud
 
 ```bash
 cd backend
-npm test              # 50 pruebas sobre la lógica de negocio
+npm test              # 53 pruebas sobre la lógica de negocio
 npm run test:cobertura
 ```
 
@@ -174,7 +174,11 @@ flutter run
 flutter run -d chrome
 ```
 
-> **Importante — dirección de la API.** El emulador de Android **no alcanza** `localhost` del computador. Por eso `lib/config/api_config.dart` usa `10.0.2.2` en Android, `localhost` en web, y una IP configurable para dispositivo físico. Si va a probar en un teléfono real conectado a la misma red wifi, edite en ese archivo `_ipEquipoEnRedLocal` con la IP de su computador y ponga `usarDispositivoFisico = true`.
+> **Importante — dirección de la API.** El emulador de Android **no alcanza** `localhost` del computador. Por eso `lib/config/api_config.dart` usa `10.0.2.2` en Android y `localhost` en web y escritorio. Para probar en un teléfono real conectado a la misma red wifi, pase la IP de su computador (`hostname -I`) al ejecutar:
+>
+> ```bash
+> flutter run --dart-define=API_IP=192.168.1.50
+> ```
 
 ---
 
@@ -206,6 +210,7 @@ Base: `http://localhost:3000/api/v1`
 | POST | `/auth/registro` | — | RF-01, RF-02 | 201 · 400 si hay datos inválidos · 409 si el correo existe |
 | POST | `/auth/login` | — | RF-03 | 200 con token · 401 si las credenciales fallan |
 | GET | `/auth/perfil` | Bearer | — | 200 · 401 sin token |
+| PUT | `/auth/contrasena` | Bearer | RN-08 | 200 · 400 nueva inválida · 401 contraseña actual incorrecta |
 | POST | `/lotes` | Bearer PRODUCTOR | RF-04 | 201 · 400 datos inválidos · 403 si no es productor |
 | GET | `/lotes/mios` | Bearer PRODUCTOR | RF-05 | 200 |
 | PUT | `/lotes/:id` | Bearer PRODUCTOR | RF-06 | 200 · 403 lote ajeno · 404 inexistente · 409 retirado |

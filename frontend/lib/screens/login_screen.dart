@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
 import '../services/api_client.dart';
+import '../state/preferencias.dart';
 import '../state/sesion.dart';
+import '../widgets/comunes.dart';
+import 'contrasena_screens.dart';
+import 'navegacion.dart';
 import 'registro_screen.dart';
 
+/// CFV-01 — Inicio de sesión (Mockups diapositiva 4; Canva página 3).
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+  final String rolSugerido;
+  const LoginScreen({super.key, this.rolSugerido = 'COMPRADOR'});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -17,9 +23,18 @@ class _LoginScreenState extends State<LoginScreen> {
 
   bool _enviando = false;
   bool _mostrarContrasena = false;
+  bool _recordar = false;
   String? _error;
 
-  static const verde = Color(0xFF276749);
+  @override
+  void initState() {
+    super.initState();
+    final recordado = Preferencias.instancia.correoRecordado;
+    if (recordado != null) {
+      _correo.text = recordado;
+      _recordar = true;
+    }
+  }
 
   @override
   void dispose() {
@@ -30,27 +45,27 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _enviar() async {
     if (!_formulario.currentState!.validate()) return;
-
     setState(() {
       _enviando = true;
       _error = null;
     });
-
     try {
-      await Sesion.instancia.iniciarSesion(
-        _correo.text.trim(),
-        _contrasena.text,
-      );
-
-      if (mounted) Navigator.pop(context);
+      final correo = _correo.text.trim();
+      await Sesion.instancia.iniciarSesion(correo, _contrasena.text);
+      Preferencias.instancia.recordarCorreo(_recordar ? correo : null);
+      if (mounted) irAInicio(context);
     } on ApiExcepcion catch (e) {
-      if (mounted) setState(() => _error = e.mensaje);
+      if (!mounted) return;
+      if (e.codigoHttp == 403) {
+        Navigator.push(context,
+            MaterialPageRoute(builder: (_) => const UsuarioBloqueadoScreen()));
+      } else {
+        setState(() => _error = e.mensaje);
+      }
     } catch (_) {
       if (mounted) {
-        setState(() {
-          _error = 'No se pudo conectar con el servidor. '
-              'Verifica tu conexión e inténtalo de nuevo.';
-        });
+        setState(() => _error = 'No se pudo conectar con el servidor. '
+            'Verifica tu conexión e inténtalo de nuevo.');
       }
     } finally {
       if (mounted) setState(() => _enviando = false);
@@ -59,186 +74,138 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final esCampesino = widget.rolSugerido == 'PRODUCTOR';
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9F6),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFFF7F9F6),
-        title: const Text('Iniciar sesión'),
-      ),
+      appBar: AppBar(),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
+            padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 440),
               child: Form(
                 key: _formulario,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Container(
-                      height: 94,
-                      width: 94,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFEAF4EC),
-                        borderRadius: BorderRadius.circular(28),
-                      ),
-                      child: const Icon(
-                        Icons.eco_rounded,
-                        size: 55,
-                        color: verde,
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    const Text(
-                      '¡Qué bueno tenerte aquí!',
-                      style: TextStyle(
-                        fontSize: 27,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF214E35),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    const Text(
-                      'Ingresa a PAPACOL y conecta directamente '
-                      'con el campo colombiano.',
-                      style: TextStyle(
-                        fontSize: 15,
-                        color: Colors.black54,
-                        height: 1.5,
-                      ),
-                    ),
-                    const SizedBox(height: 30),
-                    const Text(
-                      'Correo electrónico',
-                      style: TextStyle(fontWeight: FontWeight.w600),
-                    ),
-                    const SizedBox(height: 8),
-                    TextFormField(
-                      controller: _correo,
-                      keyboardType: TextInputType.emailAddress,
-                      autofillHints: const [AutofillHints.email],
-                      decoration: const InputDecoration(
-                        hintText: 'tucorreo@ejemplo.com',
-                        prefixIcon: Icon(Icons.email_outlined),
-                      ),
-                      validator: (valor) {
-                        if (valor == null || valor.trim().isEmpty) {
-                          return 'Ingresa tu correo electrónico';
-                        }
-                        if (!valor.contains('@') || !valor.contains('.')) {
-                          return 'Ingresa un correo válido';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 20),
-                    const Text(
-                      'Contraseña',
-                      style: TextStyle(fontWeight: FontWeight.w600),
-                    ),
-                    const SizedBox(height: 8),
-                    TextFormField(
-                      controller: _contrasena,
-                      obscureText: !_mostrarContrasena,
-                      autofillHints: const [AutofillHints.password],
-                      decoration: InputDecoration(
-                        hintText: 'Ingresa tu contraseña',
-                        prefixIcon: const Icon(Icons.lock_outline),
-                        suffixIcon: IconButton(
-                          tooltip: _mostrarContrasena
-                              ? 'Ocultar contraseña'
-                              : 'Mostrar contraseña',
-                          icon: Icon(
-                            _mostrarContrasena
-                                ? Icons.visibility_off_outlined
-                                : Icons.visibility_outlined,
+                child: AutofillGroup(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const Center(child: LogoPapacol(tamano: 80)),
+                      const SizedBox(height: 20),
+                      Text('¡Hola! Bienvenido',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              fontSize: 28,
+                              fontWeight: FontWeight.w800,
+                              color: cs.onSurface)),
+                      const SizedBox(height: 6),
+                      Text(
+                          esCampesino
+                              ? 'Ingresa como campesino y administra tus lotes.'
+                              : 'Ingresa como cliente y encuentra tu próxima cosecha.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(color: cs.onSurfaceVariant)),
+                      const SizedBox(height: 28),
+                      CampoEtiquetado(
+                        'Correo electrónico',
+                        TextFormField(
+                          controller: _correo,
+                          keyboardType: TextInputType.emailAddress,
+                          autofillHints: const [AutofillHints.email],
+                          textInputAction: TextInputAction.next,
+                          decoration: const InputDecoration(
+                            hintText: 'nombre@correo.com',
+                            prefixIcon: Icon(Icons.person_outline),
                           ),
-                          onPressed: () {
-                            setState(() {
-                              _mostrarContrasena = !_mostrarContrasena;
-                            });
+                          validator: (v) {
+                            if (v == null || v.trim().isEmpty) {
+                              return 'Ingresa tu correo electrónico';
+                            }
+                            if (!v.contains('@') || !v.contains('.')) {
+                              return 'Ingresa un correo válido';
+                            }
+                            return null;
                           },
                         ),
                       ),
-                      validator: (valor) {
-                        if (valor == null || valor.isEmpty) {
-                          return 'Ingresa tu contraseña';
-                        }
-                        return null;
-                      },
-                      onFieldSubmitted: (_) => _enviar(),
-                    ),
-                    if (_error != null) ...[
-                      const SizedBox(height: 18),
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFFFEEEE),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
-                          _error!,
-                          style: const TextStyle(color: Colors.red),
+                      CampoEtiquetado(
+                        'Contraseña',
+                        TextFormField(
+                          controller: _contrasena,
+                          obscureText: !_mostrarContrasena,
+                          autofillHints: const [AutofillHints.password],
+                          decoration: InputDecoration(
+                            hintText: '••••••••',
+                            prefixIcon: const Icon(Icons.lock_outline),
+                            suffixIcon: IconButton(
+                              tooltip: _mostrarContrasena
+                                  ? 'Ocultar contraseña'
+                                  : 'Mostrar contraseña',
+                              icon: Icon(_mostrarContrasena
+                                  ? Icons.visibility_off_outlined
+                                  : Icons.visibility_outlined),
+                              onPressed: () => setState(() =>
+                                  _mostrarContrasena = !_mostrarContrasena),
+                            ),
+                          ),
+                          validator: (v) => (v == null || v.isEmpty)
+                              ? 'Ingresa tu contraseña'
+                              : null,
+                          onFieldSubmitted: (_) => _enviar(),
                         ),
                       ),
-                    ],
-                    const SizedBox(height: 26),
-                    SizedBox(
-                      height: 54,
-                      child: FilledButton(
+                      Row(children: [
+                        Checkbox(
+                          value: _recordar,
+                          onChanged: (v) => setState(() => _recordar = v!),
+                        ),
+                        GestureDetector(
+                          onTap: () => setState(() => _recordar = !_recordar),
+                          child: const Text('Recordar'),
+                        ),
+                        const Spacer(),
+                        TextButton(
+                          onPressed: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (_) =>
+                                      const RecuperarContrasenaScreen())),
+                          child: const Text('¿Olvidó su contraseña?'),
+                        ),
+                      ]),
+                      if (_error != null) ...[
+                        const SizedBox(height: 8),
+                        CajaError([_error!]),
+                      ],
+                      const SizedBox(height: 18),
+                      FilledButton(
                         onPressed: _enviando ? null : _enviar,
                         child: _enviando
                             ? const SizedBox(
                                 height: 22,
                                 width: 22,
                                 child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: Colors.white,
-                                ),
-                              )
-                            : const Text(
-                                'Ingresar',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
+                                    strokeWidth: 2, color: Colors.white))
+                            : const Text('Iniciar sesión'),
                       ),
-                    ),
-                    const SizedBox(height: 16),
-                    OutlinedButton(
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: verde,
-                        minimumSize: const Size.fromHeight(52),
-                        side: const BorderSide(color: verde),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
+                      const SizedBox(height: 18),
+                      Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                        Text('¿No tienes cuenta?',
+                            style: TextStyle(color: cs.onSurfaceVariant)),
+                        TextButton(
+                          onPressed: _enviando
+                              ? null
+                              : () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (_) => RegistroScreen(
+                                          rolInicial: widget.rolSugerido))),
+                          child: const Text('Regístrate',
+                              style: TextStyle(fontWeight: FontWeight.w700)),
                         ),
-                      ),
-                      onPressed: _enviando
-                          ? null
-                          : () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => const RegistroScreen(),
-                                ),
-                              );
-                            },
-                      child: const Text('Crear una cuenta'),
-                    ),
-                    const SizedBox(height: 24),
-                    const Text(
-                      'PAPACOL · Del campo a tu alcance',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Colors.black45,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
+                      ]),
+                    ],
+                  ),
                 ),
               ),
             ),

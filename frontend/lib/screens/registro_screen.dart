@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../models/modelos.dart';
 import '../services/api_client.dart';
 import '../services/auth_service.dart';
+import '../state/sesion.dart';
+import '../widgets/comunes.dart';
+import 'navegacion.dart';
 
+/// CFV-01 — Crear cuenta nueva (RF-01, RF-02; Canva página 6).
 class RegistroScreen extends StatefulWidget {
-  const RegistroScreen({super.key});
+  final String rolInicial;
+  const RegistroScreen({super.key, this.rolInicial = 'COMPRADOR'});
 
   @override
   State<RegistroScreen> createState() => _RegistroScreenState();
@@ -12,358 +18,276 @@ class RegistroScreen extends StatefulWidget {
 
 class _RegistroScreenState extends State<RegistroScreen> {
   final _formulario = GlobalKey<FormState>();
+  final _auth = AuthService();
+
   final _identificacion = TextEditingController();
   final _nombre = TextEditingController();
   final _apellido = TextEditingController();
   final _correo = TextEditingController();
   final _telefono = TextEditingController();
   final _contrasena = TextEditingController();
+  final _confirmar = TextEditingController();
 
-  final AuthService _auth = AuthService();
-
-  List<OpcionReferencia> _municipios = [];
+  late String _rol = widget.rolInicial;
   int? _municipioId;
-  String _rol = 'COMPRADOR';
+  List<OpcionReferencia> _municipios = [];
   bool _cargandoReferencias = true;
   bool _enviando = false;
-  bool _mostrarContrasena = false;
-  String? _error;
-
-  static const verde = Color(0xFF276749);
+  bool _verClave = false;
+  List<String> _errores = [];
 
   @override
   void initState() {
     super.initState();
-    _cargarMunicipios();
+    _cargarReferencias();
   }
 
   @override
   void dispose() {
-    _identificacion.dispose();
-    _nombre.dispose();
-    _apellido.dispose();
-    _correo.dispose();
-    _telefono.dispose();
-    _contrasena.dispose();
+    for (final c in [
+      _identificacion, _nombre, _apellido, _correo, _telefono, _contrasena,
+      _confirmar
+    ]) {
+      c.dispose();
+    }
     super.dispose();
   }
 
-  Future<void> _cargarMunicipios() async {
+  Future<void> _cargarReferencias() async {
+    setState(() {
+      _cargandoReferencias = true;
+      _errores = [];
+    });
     try {
-      final referencias = await _auth.referencias();
+      final r = await _auth.referencias();
       if (!mounted) return;
-
-      setState(() {
-        _municipios = referencias.municipios;
-        _municipioId =
-            _municipios.isNotEmpty ? _municipios.first.id : null;
-        _cargandoReferencias = false;
-      });
+      setState(() => _municipios = r.municipios);
     } catch (_) {
       if (!mounted) return;
-      setState(() {
-        _cargandoReferencias = false;
-        _error = 'No se pudieron cargar los municipios. '
-            'Comprueba que el servidor esté activo.';
-      });
+      setState(() => _errores = [
+            'No se pudieron cargar los municipios. '
+                'Comprueba que el servidor esté activo.'
+          ]);
+    } finally {
+      if (mounted) setState(() => _cargandoReferencias = false);
     }
-  }
-
-  String? _validarTexto(String? valor, String campo) {
-    if (valor == null || valor.trim().length < 2) {
-      return 'Ingresa $campo';
-    }
-    return null;
   }
 
   Future<void> _registrar() async {
     if (!_formulario.currentState!.validate()) return;
-
-    if (_municipioId == null) {
-      setState(() => _error = 'Selecciona un municipio válido.');
-      return;
-    }
-
     setState(() {
       _enviando = true;
-      _error = null;
+      _errores = [];
     });
-
     try {
+      final correo = _correo.text.trim();
       await _auth.registrar(
         identificacion: _identificacion.text.trim(),
         nombre: _nombre.text.trim(),
         apellido: _apellido.text.trim(),
-        correo: _correo.text.trim(),
+        correo: correo,
         telefono: _telefono.text.trim(),
         contrasena: _contrasena.text,
         rol: _rol,
         municipioId: _municipioId!,
       );
-
+      await Sesion.instancia.iniciarSesion(correo, _contrasena.text);
       if (!mounted) return;
-
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('¡Tu cuenta se creó correctamente!'),
-          backgroundColor: verde,
-        ),
-      );
-
-      Navigator.pop(context);
+          const SnackBar(content: Text('¡Tu cuenta se creó correctamente!')));
+      irAInicio(context);
     } on ApiExcepcion catch (e) {
-      if (!mounted) return;
-      setState(() {
-        _error = e.detalles.isEmpty
-            ? e.mensaje
-            : '${e.mensaje}\n${e.detalles.join('\n')}';
-      });
+      if (mounted) {
+        setState(() =>
+            _errores = e.detalles.isEmpty ? [e.mensaje] : e.detalles);
+      }
     } catch (_) {
-      if (!mounted) return;
-      setState(() {
-        _error = 'No fue posible completar el registro. '
-            'Verifica la conexión con el servidor e inténtalo de nuevo.';
-      });
+      if (mounted) {
+        setState(() => _errores = [
+              'No fue posible completar el registro. Verifica la conexión '
+                  'con el servidor e inténtalo de nuevo.'
+            ]);
+      }
     } finally {
       if (mounted) setState(() => _enviando = false);
     }
   }
 
+  String? _requerido(String? v, String campo) =>
+      (v == null || v.trim().length < 2) ? 'Ingresa $campo' : null;
+
+  Widget _campo(TextEditingController c, String etiqueta, IconData icono,
+      {String? Function(String?)? validador,
+      TextInputType? teclado,
+      List<TextInputFormatter>? formatos,
+      String? pista}) {
+    return CampoEtiquetado(
+      etiqueta,
+      TextFormField(
+        controller: c,
+        keyboardType: teclado,
+        inputFormatters: formatos,
+        textInputAction: TextInputAction.next,
+        decoration: InputDecoration(hintText: pista, prefixIcon: Icon(icono)),
+        validator: validador,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final digitos = [FilteringTextInputFormatter.digitsOnly];
     return Scaffold(
-      appBar: AppBar(title: const Text('Crear cuenta')),
+      appBar: AppBar(title: const Text('Crear cuenta nueva')),
       body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(22),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 460),
-              child: Form(
-                key: _formulario,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const Icon(Icons.eco_rounded, color: verde, size: 58),
-                    const SizedBox(height: 12),
-                    const Text(
-                      'Únete a PAPACOL',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 27,
-                        fontWeight: FontWeight.bold,
-                        color: verde,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    const Text(
-                      'Conectamos el campo colombiano con sus compradores.',
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 26),
-
-                    TextFormField(
-                      controller: _identificacion,
-                      keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(
-                        labelText: 'Número de identificación',
-                        prefixIcon: Icon(Icons.badge_outlined),
-                      ),
-                      validator: (v) {
-                        final valor = v?.trim() ?? '';
-                        if (!RegExp(r'^\d{6,20}$').hasMatch(valor)) {
-                          return 'Ingresa entre 6 y 20 dígitos';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 14),
-
-                    TextFormField(
-                      controller: _nombre,
-                      textCapitalization: TextCapitalization.words,
-                      decoration: const InputDecoration(
-                        labelText: 'Nombre',
-                        prefixIcon: Icon(Icons.person_outline),
-                      ),
-                      validator: (v) => _validarTexto(v, 'tu nombre'),
-                    ),
-                    const SizedBox(height: 14),
-
-                    TextFormField(
-                      controller: _apellido,
-                      textCapitalization: TextCapitalization.words,
-                      decoration: const InputDecoration(
-                        labelText: 'Apellido',
-                        prefixIcon: Icon(Icons.person_outline),
-                      ),
-                      validator: (v) => _validarTexto(v, 'tu apellido'),
-                    ),
-                    const SizedBox(height: 14),
-
-                    TextFormField(
-                      controller: _correo,
-                      keyboardType: TextInputType.emailAddress,
-                      decoration: const InputDecoration(
-                        labelText: 'Correo electrónico',
-                        prefixIcon: Icon(Icons.email_outlined),
-                      ),
-                      validator: (v) {
-                        final valor = v?.trim() ?? '';
-                        if (!RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$')
-                            .hasMatch(valor)) {
-                          return 'Ingresa un correo válido';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 14),
-
-                    TextFormField(
-                      controller: _telefono,
-                      keyboardType: TextInputType.phone,
-                      decoration: const InputDecoration(
-                        labelText: 'Teléfono',
-                        prefixIcon: Icon(Icons.phone_outlined),
-                      ),
-                      validator: (v) {
-                        if (!RegExp(r'^\d{7,15}$')
-                            .hasMatch(v?.trim() ?? '')) {
-                          return 'Ingresa entre 7 y 15 dígitos';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 14),
-
-                    if (_cargandoReferencias)
-                      const Center(child: CircularProgressIndicator())
-                    else if (_municipios.isEmpty)
-                      const Text(
-                        'No hay municipios disponibles. '
-                        'Revisa el servidor y vuelve a intentarlo.',
-                        style: TextStyle(color: Colors.red),
-                      )
-                    else
-                      DropdownButtonFormField<int>(
-                        initialValue: _municipioId,
-                        isExpanded: true,
-                        decoration: const InputDecoration(
-                          labelText: 'Municipio',
-                          prefixIcon: Icon(Icons.location_on_outlined),
-                        ),
-                        items: _municipios
-                            .map(
-                              (m) => DropdownMenuItem<int>(
-                                value: m.id,
-                                child: Text(m.nombre),
-                              ),
-                            )
-                            .toList(),
-                        onChanged: (id) {
-                          setState(() => _municipioId = id);
-                        },
-                        validator: (id) =>
-                            id == null ? 'Selecciona un municipio' : null,
-                      ),
-                    const SizedBox(height: 14),
-
-                    DropdownButtonFormField<String>(
-                      initialValue: _rol,
-                      decoration: const InputDecoration(
-                        labelText: 'Tipo de cuenta',
-                        prefixIcon: Icon(Icons.groups_outlined),
-                      ),
-                      items: const [
-                        DropdownMenuItem(
-                          value: 'COMPRADOR',
-                          child: Text('Cliente comprador'),
-                        ),
-                        DropdownMenuItem(
-                          value: 'PRODUCTOR',
-                          child: Text('Vendedor campesino'),
-                        ),
-                      ],
-                      onChanged: (rol) {
-                        if (rol != null) setState(() => _rol = rol);
-                      },
-                    ),
-                    const SizedBox(height: 14),
-
-                    TextFormField(
-                      controller: _contrasena,
-                      obscureText: !_mostrarContrasena,
-                      decoration: InputDecoration(
-                        labelText: 'Contraseña',
-                        prefixIcon: const Icon(Icons.lock_outline),
-                        suffixIcon: IconButton(
-                          onPressed: () => setState(
-                            () => _mostrarContrasena = !_mostrarContrasena,
-                          ),
-                          icon: Icon(
-                            _mostrarContrasena
-                                ? Icons.visibility_off_outlined
-                                : Icons.visibility_outlined,
-                          ),
-                        ),
-                      ),
-                      validator: (v) => v == null || v.length < 8
-                          ? 'Usa al menos 8 caracteres'
-                          : null,
-                    ),
-
-                    if (_error != null) ...[
-                      const SizedBox(height: 16),
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFFFEEEE),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
-                          _error!,
-                          style: const TextStyle(color: Colors.red),
-                        ),
-                      ),
-                    ],
-
-                    const SizedBox(height: 24),
-                    SizedBox(
-                      height: 52,
-                      child: FilledButton(
-                        onPressed: _enviando ||
-                                _cargandoReferencias ||
-                                _municipios.isEmpty
-                            ? null
-                            : _registrar,
-                        child: _enviando
-                            ? const SizedBox(
-                                height: 22,
-                                width: 22,
-                                child: CircularProgressIndicator(
-                                  color: Colors.white,
-                                  strokeWidth: 2,
-                                ),
-                              )
-                            : const Text(
-                                'Crear mi cuenta',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                ),
-                              ),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    TextButton(
-                      onPressed: _enviando
-                          ? null
-                          : () => Navigator.pop(context),
-                      child: const Text('Ya tengo una cuenta'),
-                    ),
+        child: Centrado(
+          ancho: 520,
+          child: Form(
+            key: _formulario,
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(24, 4, 24, 32),
+              children: [
+                Text('Vamos a crear una cuenta',
+                    style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w800,
+                        color: cs.onSurface)),
+                const SizedBox(height: 6),
+                Text('Elige tu perfil y completa tus datos.',
+                    style: TextStyle(color: cs.onSurfaceVariant)),
+                const SizedBox(height: 20),
+                SegmentedButton<String>(
+                  segments: const [
+                    ButtonSegment(
+                        value: 'PRODUCTOR',
+                        icon: Icon(Icons.agriculture_outlined),
+                        label: Text('Campesino')),
+                    ButtonSegment(
+                        value: 'COMPRADOR',
+                        icon: Icon(Icons.storefront_outlined),
+                        label: Text('Cliente')),
                   ],
+                  selected: {_rol},
+                  onSelectionChanged: (s) => setState(() => _rol = s.first),
                 ),
-              ),
+                const SizedBox(height: 22),
+                _campo(_nombre, 'Nombre', Icons.badge_outlined,
+                    validador: (v) => _requerido(v, 'tu nombre')),
+                _campo(_apellido, 'Apellidos', Icons.badge_outlined,
+                    validador: (v) => _requerido(v, 'tus apellidos')),
+                _campo(_identificacion, 'Número de identificación',
+                    Icons.credit_card_outlined,
+                    teclado: TextInputType.number,
+                    formatos: digitos,
+                    validador: (v) => (v == null || v.length < 6 || v.length > 20)
+                        ? 'Entre 6 y 20 dígitos'
+                        : null),
+                _campo(_correo, 'Correo electrónico', Icons.email_outlined,
+                    teclado: TextInputType.emailAddress,
+                    pista: 'nombre@correo.com',
+                    validador: (v) => (v == null ||
+                            !RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$')
+                                .hasMatch(v.trim()))
+                        ? 'Ingresa un correo válido'
+                        : null),
+                _campo(_telefono, 'Número de teléfono', Icons.phone_outlined,
+                    teclado: TextInputType.phone,
+                    formatos: digitos,
+                    pista: '3001234567',
+                    validador: (v) => (v == null || v.length < 7 || v.length > 15)
+                        ? 'Entre 7 y 15 dígitos'
+                        : null),
+                CampoEtiquetado(
+                  'Municipio',
+                  DropdownButtonFormField<int>(
+                    initialValue: _municipioId,
+                    isExpanded: true,
+                    decoration: InputDecoration(
+                      prefixIcon: const Icon(Icons.place_outlined),
+                      hintText: _cargandoReferencias
+                          ? 'Cargando municipios…'
+                          : 'Selecciona tu municipio',
+                    ),
+                    items: _municipios
+                        .map((m) =>
+                            DropdownMenuItem(value: m.id, child: Text(m.nombre)))
+                        .toList(),
+                    onChanged: (v) => setState(() => _municipioId = v),
+                    validator: (v) =>
+                        v == null ? 'Selecciona un municipio' : null,
+                  ),
+                ),
+                CampoEtiquetado(
+                  'Contraseña',
+                  TextFormField(
+                    controller: _contrasena,
+                    obscureText: !_verClave,
+                    decoration: InputDecoration(
+                      prefixIcon: const Icon(Icons.lock_outline),
+                      helperText:
+                          'Debe contener un número y un mínimo de 8 caracteres',
+                      suffixIcon: IconButton(
+                        tooltip: _verClave ? 'Ocultar' : 'Mostrar',
+                        icon: Icon(_verClave
+                            ? Icons.visibility_off_outlined
+                            : Icons.visibility_outlined),
+                        onPressed: () => setState(() => _verClave = !_verClave),
+                      ),
+                    ),
+                    validator: (v) {
+                      if (v == null || v.length < 8) {
+                        return 'Debe tener al menos 8 caracteres';
+                      }
+                      if (!RegExp(r'\d').hasMatch(v)) {
+                        return 'Debe contener al menos un número';
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+                CampoEtiquetado(
+                  'Confirmar contraseña',
+                  TextFormField(
+                    controller: _confirmar,
+                    obscureText: !_verClave,
+                    decoration:
+                        const InputDecoration(prefixIcon: Icon(Icons.lock_outline)),
+                    validator: (v) => v != _contrasena.text
+                        ? 'Las contraseñas no coinciden'
+                        : null,
+                  ),
+                ),
+                if (_errores.isNotEmpty) ...[
+                  CajaError(_errores),
+                  if (_municipios.isEmpty && !_cargandoReferencias)
+                    TextButton.icon(
+                      onPressed: _cargarReferencias,
+                      icon: const Icon(Icons.refresh),
+                      label: const Text('Reintentar'),
+                    ),
+                  const SizedBox(height: 14),
+                ],
+                FilledButton(
+                  onPressed: _enviando ? null : _registrar,
+                  child: _enviando
+                      ? const SizedBox(
+                          height: 22,
+                          width: 22,
+                          child: CircularProgressIndicator(strokeWidth: 2))
+                      : const Text('Registrarte'),
+                ),
+                const SizedBox(height: 12),
+                Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                  Text('¿Tienes una cuenta?',
+                      style: TextStyle(color: cs.onSurfaceVariant)),
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('Inicia sesión',
+                        style: TextStyle(fontWeight: FontWeight.w700)),
+                  ),
+                ]),
+              ],
             ),
           ),
         ),

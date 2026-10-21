@@ -112,4 +112,29 @@ async function obtenerPerfil(usuarioId) {
   return usuario;
 }
 
-module.exports = { validarDatosRegistro, registrar, autenticar, obtenerPerfil, generarToken, ROLES_VALIDOS };
+/**
+ * Cambio de contrasena del usuario autenticado. RN-08: se guarda solo el hash.
+ * Exige la contrasena actual para que un token robado no baste para cambiarla.
+ */
+async function cambiarContrasena(usuarioId, actual, nueva) {
+  if (!actual || !nueva) {
+    throw new ErrorApp('Debe proporcionar la contrasena actual y la nueva.', 400);
+  }
+  if (String(nueva).length < 8) {
+    throw new ErrorApp('La nueva contrasena debe tener al menos 8 caracteres.', 400);
+  }
+  if (actual === nueva) {
+    throw new ErrorApp('La nueva contrasena debe ser diferente de la actual.', 400);
+  }
+  const credenciales = await usuarioModel.buscarCredencialesPorId(usuarioId);
+  if (!credenciales) throw new ErrorApp('Usuario no encontrado.', 404);
+  const coincide = await bcrypt.compare(actual, credenciales.contrasena_hash);
+  if (!coincide) throw new ErrorApp('La contrasena actual no es correcta.', 401);
+  const hash = await bcrypt.hash(nueva, config.bcryptRounds);
+  await usuarioModel.actualizarContrasena(usuarioId, hash);
+}
+
+module.exports = {
+  validarDatosRegistro, registrar, autenticar, obtenerPerfil, generarToken,
+  cambiarContrasena, ROLES_VALIDOS
+};
