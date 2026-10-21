@@ -1,41 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../models/modelos.dart';
-import '../services/catalogo_service.dart';
 import '../services/api_client.dart';
+import '../services/catalogo_service.dart';
+import '../state/mensajes.dart';
+import '../state/preferencias.dart';
+import '../state/sesion.dart';
+import '../utils/formato.dart';
+import '../widgets/comunes.dart';
+import '../widgets/lote_card.dart';
+import 'explorar_screens.dart';
+import 'login_screen.dart';
+import 'mensajes_screens.dart';
+import 'navegacion.dart';
 
-/// CFV-03 — Detalle del lote y datos de contacto del productor (RF-10).
-
-String formatoPesos(num valor) {
-  final texto = valor.round().toString();
-  final resultado = StringBuffer();
-
-  for (int i = 0; i < texto.length; i++) {
-    resultado.write(texto[i]);
-
-    final restantes = texto.length - i - 1;
-    if (restantes > 0 && restantes % 3 == 0) {
-      resultado.write('.');
-    }
-  }
-
-  return '\$${resultado.toString()}';
-}
-
+/// CFV-03 — Detalle del lote y contacto (RF-10; Mockups diapositiva 5).
 class LoteDetalleScreen extends StatefulWidget {
   final int loteId;
-
-  const LoteDetalleScreen({
-    super.key,
-    required this.loteId,
-  });
+  const LoteDetalleScreen({super.key, required this.loteId});
 
   @override
   State<LoteDetalleScreen> createState() => _LoteDetalleScreenState();
 }
 
 class _LoteDetalleScreenState extends State<LoteDetalleScreen> {
-  final CatalogoService _servicio = CatalogoService();
-
+  final _servicio = CatalogoService();
   Lote? _lote;
   bool _cargando = true;
   String? _error;
@@ -53,37 +43,35 @@ class _LoteDetalleScreenState extends State<LoteDetalleScreen> {
     });
     try {
       final lote = await _servicio.detalle(widget.loteId);
-
-      if (!mounted) return;
-
-      setState(() {
-        _lote = lote;
-        _cargando = false;
-        _error = null;
-      });
+      if (mounted) setState(() => _lote = lote);
     } on ApiExcepcion catch (e) {
-      if (!mounted) return;
-
-      setState(() {
-        _error = e.mensaje;
-        _cargando = false;
-      });
+      if (mounted) setState(() => _error = e.mensaje);
     } catch (_) {
-      if (!mounted) return;
-
-      setState(() {
-        _error = 'No fue posible conectar con el servidor.';
-        _cargando = false;
-      });
+      if (mounted) setState(() => _error = 'No fue posible conectar con el servidor.');
+    } finally {
+      if (mounted) setState(() => _cargando = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final prefs = Preferencias.instancia;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Detalle del lote'),
         actions: [
+          ListenableBuilder(
+            listenable: prefs,
+            builder: (context, _) {
+              final g = prefs.estaGuardado(widget.loteId);
+              return IconButton(
+                tooltip: g ? 'Quitar de guardados' : 'Guardar lote',
+                icon: Icon(g ? Icons.favorite : Icons.favorite_border,
+                    color: g ? Theme.of(context).colorScheme.error : null),
+                onPressed: () => prefs.alternarGuardado(widget.loteId),
+              );
+            },
+          ),
           IconButton(
             tooltip: 'Actualizar',
             onPressed: _cargando ? null : _cargar,
@@ -94,160 +82,259 @@ class _LoteDetalleScreenState extends State<LoteDetalleScreen> {
       body: _cargando
           ? const Center(child: CircularProgressIndicator())
           : _error != null
-              ? Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(24),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(
-                          Icons.cloud_off_outlined,
-                          size: 48,
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          _error!,
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 16),
-                        FilledButton.icon(
-                          onPressed: _cargar,
-                          icon: const Icon(Icons.refresh),
-                          label: const Text('Reintentar'),
-                        ),
-                      ],
+              ? EstadoError(mensaje: _error!, alReintentar: _cargar)
+              : _construir(_lote!),
+      bottomNavigationBar: _lote == null
+          ? null
+          : SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+                child: Center(
+                  heightFactor: 1,
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 640),
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: FilledButton.icon(
+                        onPressed: () => mostrarContacto(context, _lote!),
+                        icon: const Icon(Icons.chat_bubble_outline),
+                        label: const Text('Contactar productor'),
+                      ),
                     ),
                   ),
-                )
-              : _lote == null
-                  ? const Center(
-                      child: Text('No se encontró la información del lote.'),
-                    )
-                  : _construir(_lote!),
+                ),
+              ),
+            ),
     );
   }
 
   Widget _construir(Lote l) {
-    return ListView(
-      padding: const EdgeInsets.all(20),
-      children: [
+    final cs = Theme.of(context).colorScheme;
+    final color = colorVariedad(l.variedad);
+    return Centrado(
+      ancho: 640,
+      child: ListView(padding: const EdgeInsets.all(20), children: [
         Container(
-          padding: const EdgeInsets.all(20),
+          height: 170,
           decoration: BoxDecoration(
-            color: const Color(0xFFEAF4EC),
-            borderRadius: BorderRadius.circular(18),
+            color: color.withValues(alpha: 0.14),
+            borderRadius: BorderRadius.circular(24),
           ),
-          child: const Icon(
-            Icons.agriculture_rounded,
-            size: 56,
-            color: Color(0xFF276749),
-          ),
+          child: Stack(children: [
+            Center(child: Icon(Icons.spa_rounded, size: 84, color: color)),
+            Positioned(left: 14, top: 14, child: ChipEstado(l.estado)),
+          ]),
         ),
         const SizedBox(height: 20),
-        Text(
-          '${l.variedad} — ${l.calibre}',
-          style: const TextStyle(
-            fontSize: 23,
-            fontWeight: FontWeight.bold,
+        Text('Papa ${l.variedad}',
+            style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w800)),
+        const SizedBox(height: 4),
+        Row(children: [
+          Icon(Icons.place_outlined, size: 18, color: cs.onSurfaceVariant),
+          const SizedBox(width: 4),
+          Text('${l.municipio} · calibre ${l.calibre}',
+              style: TextStyle(color: cs.onSurfaceVariant)),
+        ]),
+        const SizedBox(height: 16),
+        Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
+          Text(pesos(l.precioBulto),
+              style: TextStyle(
+                  fontSize: 30, fontWeight: FontWeight.w800, color: cs.primary)),
+          const SizedBox(width: 6),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 5),
+            child: Text('/ bulto de ${l.pesoBultoKg.toStringAsFixed(0)} kg',
+                style: TextStyle(color: cs.onSurfaceVariant)),
           ),
-        ),
-        const SizedBox(height: 6),
-        Text(
-          '${l.municipio} · Publicado el ${l.fechaPublicacion}',
-          style: TextStyle(color: Colors.grey.shade700),
-        ),
-        const Divider(height: 32),
-        _fila('Precio por bulto', formatoPesos(l.precioBulto)),
-        _fila('Cantidad', '${l.cantidadBultos} bultos'),
-        _fila(
-          'Peso por bulto',
-          '${l.pesoBultoKg.toStringAsFixed(0)} kg',
-        ),
-        _fila(
-          'Peso total',
-          '${l.pesoTotalKg.toStringAsFixed(0)} kg',
-        ),
-        _fila(
-          'Valor total del lote',
-          formatoPesos(l.precioBulto * l.cantidadBultos),
-        ),
-        _fila('Fecha de cosecha', l.fechaCosecha),
+        ]),
+        const SizedBox(height: 16),
+        Wrap(spacing: 10, runSpacing: 10, children: [
+          _Dato(Icons.inventory_2_outlined, 'Disponible',
+              '${miles(l.pesoTotalKg)} kg (${l.cantidadBultos} bultos)'),
+          _Dato(Icons.scale_outlined, 'Precio por kg',
+              pesos(l.pesoBultoKg > 0 ? l.precioBulto / l.pesoBultoKg : 0)),
+          _Dato(Icons.payments_outlined, 'Valor del lote',
+              pesos(l.precioBulto * l.cantidadBultos)),
+          _Dato(Icons.event_outlined, 'Cosecha', fechaLarga(l.fechaCosecha)),
+        ]),
         if (l.descripcion != null && l.descripcion!.isNotEmpty) ...[
-          const Divider(height: 32),
-          const Text(
-            'Descripción',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
-          ),
-          const SizedBox(height: 8),
-          Text(l.descripcion!),
+          const SizedBox(height: 20),
+          const TituloSeccion('Descripción'),
+          Text(l.descripcion!, style: const TextStyle(height: 1.5)),
         ],
-        const Divider(height: 32),
-        const Text(
-          'Contacto del productor',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-        ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 20),
         Card(
           child: ListTile(
-            leading: const CircleAvatar(
-              backgroundColor: Color(0xFFEAF4EC),
-              child: Icon(
-                Icons.agriculture,
-                color: Color(0xFF276749),
-              ),
-            ),
-            title: Text(l.productor),
-            subtitle: Text(
-              '${l.municipio}\nTeléfono: ${l.productorTelefono}',
-            ),
-            isThreeLine: true,
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+            leading: AvatarIniciales(l.productor),
+            title: Text('Productor: ${l.productor}',
+                style: const TextStyle(fontWeight: FontWeight.w700)),
+            subtitle: const Text('Ver perfil del campesino'),
+            trailing: const Icon(Icons.arrow_forward),
+            onTap: () => abrir(
+                context,
+                ProductorPerfilScreen(
+                    productorId: l.productorId, nombre: l.productor)),
           ),
         ),
         const SizedBox(height: 16),
-        Container(
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: const Color(0xFFE4EAE3)),
-          ),
-          child: Text(
-            'PAPACOL pone en contacto directo a productor y comprador. '
-            'La negociación y la entrega se acuerdan entre las partes.',
-            style: TextStyle(
-              fontSize: 13,
-              color: Colors.grey.shade700,
-              height: 1.5,
-            ),
-          ),
-        ),
-        const SizedBox(height: 24),
-      ],
+        const _FlujoContacto(),
+        const SizedBox(height: 12),
+        Text('Publicado el ${fechaLarga(l.fechaPublicacion)}',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant)),
+      ]),
     );
+  }
+}
+
+class _Dato extends StatelessWidget {
+  final IconData icono;
+  final String etiqueta;
+  final String valor;
+  const _Dato(this.icono, this.etiqueta, this.valor);
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Container(
+      constraints: const BoxConstraints(minWidth: 140),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: cs.surfaceContainerHigh,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Row(mainAxisSize: MainAxisSize.min, children: [
+        Icon(icono, size: 20, color: cs.primary),
+        const SizedBox(width: 8),
+        Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(etiqueta,
+              style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant)),
+          Text(valor, style: const TextStyle(fontWeight: FontWeight.w700)),
+        ]),
+      ]),
+    );
+  }
+}
+
+/// "Flujo coherente con el proyecto" (Mockups, diapositiva 5).
+class _FlujoContacto extends StatelessWidget {
+  const _FlujoContacto();
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    const pasos = [
+      'Consulta el lote y los datos publicados.',
+      'Contacta al campesino por llamada, WhatsApp o mensaje.',
+      'Acuerden precio final, cantidad y transporte entre ustedes.',
+    ];
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: cs.primaryContainer.withValues(alpha: 0.35),
+        borderRadius: BorderRadius.circular(18),
+      ),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        const Text('¿Cómo compro?',
+            style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+        const SizedBox(height: 10),
+        for (var i = 0; i < pasos.length; i++)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              CircleAvatar(
+                radius: 12,
+                backgroundColor: cs.primary,
+                child: Text('${i + 1}',
+                    style: TextStyle(
+                        color: cs.onPrimary,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700)),
+              ),
+              const SizedBox(width: 10),
+              Expanded(child: Text(pasos[i])),
+            ]),
+          ),
+        Text('PAPACOL no procesa pagos ni administra envíos.',
+            style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant)),
+      ]),
+    );
+  }
+}
+
+/// Hoja de contacto con el productor de un lote.
+Future<void> mostrarContacto(BuildContext context, Lote l) async {
+  final tel = l.productorTelefono.replaceAll(RegExp(r'\D'), '');
+  final mensajeWa = Uri.encodeComponent(
+      'Hola ${l.productor}, vi en PAPACOL su lote de papa ${l.variedad} '
+      '(${l.cantidadBultos} bultos). ¿Sigue disponible?');
+
+  Future<void> lanzar(Uri uri) async {
+    final ok = await launchUrl(uri, mode: LaunchMode.externalApplication)
+        .catchError((_) => false);
+    if (!ok && context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('No se encontró una aplicación para abrir el enlace.')));
+    }
   }
 
-  Widget _fila(String etiqueta, String valor) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: Text(
-              etiqueta,
-              style: TextStyle(color: Colors.grey.shade800),
-            ),
-          ),
-          const SizedBox(width: 16),
-          Flexible(
-            child: Text(
-              valor,
-              textAlign: TextAlign.end,
-              style: const TextStyle(fontWeight: FontWeight.w600),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  await showModalBottomSheet<void>(
+    context: context,
+    showDragHandle: true,
+    builder: (hoja) => SafeArea(
+      child: Column(mainAxisSize: MainAxisSize.min, children: [
+        ListTile(
+          leading: AvatarIniciales(l.productor),
+          title: Text(l.productor,
+              style: const TextStyle(fontWeight: FontWeight.w700)),
+          subtitle: Text('${l.municipio} · $tel'),
+        ),
+        const Divider(),
+        ListTile(
+          leading: const Icon(Icons.call_outlined),
+          title: const Text('Llamar'),
+          onTap: () {
+            Navigator.pop(hoja);
+            lanzar(Uri(scheme: 'tel', path: tel));
+          },
+        ),
+        ListTile(
+          leading: const Icon(Icons.chat_outlined),
+          title: const Text('Escribir por WhatsApp'),
+          onTap: () {
+            Navigator.pop(hoja);
+            lanzar(Uri.parse('https://wa.me/57$tel?text=$mensajeWa'));
+          },
+        ),
+        ListTile(
+          leading: const Icon(Icons.mail_outline),
+          title: const Text('Enviar mensaje en PAPACOL'),
+          trailing: const EtiquetaDemo(),
+          onTap: () {
+            Navigator.pop(hoja);
+            if (!Sesion.instancia.autenticado) {
+              abrir(context, const LoginScreen());
+              return;
+            }
+            final c = Mensajeria.instancia
+                .abrir(l.productor, detalle: 'Productor · ${l.municipio}');
+            abrir(context, ChatScreen(conversacion: c));
+          },
+        ),
+        ListTile(
+          leading: const Icon(Icons.copy),
+          title: const Text('Copiar teléfono'),
+          onTap: () {
+            Clipboard.setData(ClipboardData(text: tel));
+            Navigator.pop(hoja);
+            ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Teléfono copiado.')));
+          },
+        ),
+        const SizedBox(height: 8),
+      ]),
+    ),
+  );
 }

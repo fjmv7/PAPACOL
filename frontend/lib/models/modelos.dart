@@ -50,6 +50,7 @@ class Lote {
   final int productorId;
   final String productor;
   final String productorTelefono;
+  final String productorCorreo;
   final String municipio;
 
   Lote({
@@ -68,6 +69,7 @@ class Lote {
     required this.productorId,
     required this.productor,
     required this.productorTelefono,
+    this.productorCorreo = '',
     required this.municipio,
   });
 
@@ -95,8 +97,23 @@ class Lote {
         productorId: j['productor_id'] as int? ?? 0,
         productor: j['productor']?.toString() ?? '',
         productorTelefono: j['productor_telefono']?.toString() ?? '',
+        productorCorreo: j['productor_correo']?.toString() ?? '',
         municipio: j['municipio']?.toString() ?? '',
       );
+}
+
+/// Productor con oferta activa, derivado del catálogo público.
+class Productor {
+  final int id;
+  final String nombre;
+  final String municipio;
+  final String telefono;
+  final String correo;
+  final List<Lote> lotes = [];
+  Productor(this.id, this.nombre, this.municipio, this.telefono, this.correo);
+
+  Set<String> get variedades => lotes.map((l) => l.variedad).toSet();
+  int get totalBultos => lotes.fold(0, (s, l) => s + l.cantidadBultos);
 }
 
 /// Elemento de un catalogo de referencia (variedad, calibre, municipio, rol).

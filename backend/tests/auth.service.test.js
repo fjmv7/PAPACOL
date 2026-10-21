@@ -141,3 +141,29 @@ describe('PU-06 generarToken — RNF-02', () => {
     expect(carga.exp).toBeGreaterThan(carga.iat);
   });
 });
+
+describe('PU-07 cambiarContrasena — RN-08', () => {
+  const hashActual = bcrypt.hashSync('Clave.Segura2026', 4);
+
+  test('rechaza una contrasena nueva de menos de 8 caracteres', async () => {
+    await expect(authService.cambiarContrasena(1, 'Clave.Segura2026', 'corta'))
+      .rejects.toMatchObject({ codigoHttp: 400 });
+    expect(usuarioModel.actualizarContrasena).not.toHaveBeenCalled();
+  });
+
+  test('rechaza con 401 si la contrasena actual no coincide', async () => {
+    usuarioModel.buscarCredencialesPorId.mockResolvedValue({ usuario_id: 1, contrasena_hash: hashActual });
+    await expect(authService.cambiarContrasena(1, 'Incorrecta.2026', 'Nueva.Clave2026'))
+      .rejects.toMatchObject({ codigoHttp: 401 });
+    expect(usuarioModel.actualizarContrasena).not.toHaveBeenCalled();
+  });
+
+  test('guarda un hash nuevo, nunca el texto plano', async () => {
+    usuarioModel.buscarCredencialesPorId.mockResolvedValue({ usuario_id: 1, contrasena_hash: hashActual });
+    await authService.cambiarContrasena(1, 'Clave.Segura2026', 'Nueva.Clave2026');
+    const [id, hash] = usuarioModel.actualizarContrasena.mock.calls[0];
+    expect(id).toBe(1);
+    expect(hash).not.toBe('Nueva.Clave2026');
+    expect(bcrypt.compareSync('Nueva.Clave2026', hash)).toBe(true);
+  });
+});

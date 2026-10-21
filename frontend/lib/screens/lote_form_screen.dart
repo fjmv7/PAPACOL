@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import '../utils/formato.dart';
+import '../widgets/comunes.dart';
 import '../models/modelos.dart';
 import '../services/lote_service.dart';
 import '../services/auth_service.dart';
@@ -116,78 +119,107 @@ class _LoteFormScreenState extends State<LoteFormScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final total = (double.tryParse(_cantidad.text) ?? 0) *
+        (double.tryParse(_precio.text) ?? 0);
     return Scaffold(
       appBar: AppBar(title: Text(_esEdicion ? 'Editar lote' : 'Publicar lote')),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
+      body: Centrado(
+        ancho: 560,
         child: Form(
           key: _formulario,
-          child:
-              Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-            if (_ref != null) ...[
-              DropdownButtonFormField<int>(
-                initialValue: _variedadId,
-                decoration:
-                    const InputDecoration(labelText: 'Variedad de papa'),
-                items: _ref!.variedades
-                    .map((v) =>
-                        DropdownMenuItem(value: v.id, child: Text(v.nombre)))
-                    .toList(),
-                onChanged: (v) => setState(() => _variedadId = v),
-              ),
-              const SizedBox(height: 12),
-              DropdownButtonFormField<int>(
-                initialValue: _calibreId,
-                decoration: const InputDecoration(labelText: 'Calibre'),
-                items: _ref!.calibres
-                    .map((c) =>
-                        DropdownMenuItem(value: c.id, child: Text(c.nombre)))
-                    .toList(),
-                onChanged: (v) => setState(() => _calibreId = v),
-              ),
-              const SizedBox(height: 12),
-            ],
-            _numero(_cantidad, 'Cantidad de bultos'),
-            _numero(_peso, 'Peso por bulto (kg)'),
-            _numero(_precio, 'Precio por bulto (COP)'),
-            TextFormField(
-              controller: _descripcion,
-              maxLines: 2,
-              maxLength: 300,
-              decoration:
-                  const InputDecoration(labelText: 'Descripcion (opcional)'),
-            ),
-            ListTile(
-              contentPadding: EdgeInsets.zero,
-              title: const Text('Fecha de cosecha'),
-              subtitle: Text(_fechaCosecha.toIso8601String().split('T').first),
-              trailing: const Icon(Icons.calendar_today),
-              onTap: _elegirFecha,
-            ),
-            if (_errores.isNotEmpty)
-              Container(
-                padding: const EdgeInsets.all(12),
-                margin: const EdgeInsets.only(bottom: 12),
-                decoration: BoxDecoration(
-                    color: Colors.red.shade50,
-                    borderRadius: BorderRadius.circular(8)),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: _errores
-                      .map((e) => Text('• $e',
-                          style: const TextStyle(color: Colors.red)))
+          child: ListView(padding: const EdgeInsets.all(20), children: [
+            Text(_esEdicion ? 'Actualiza tu lote' : 'Nuevo lote de papa',
+                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800)),
+            const SizedBox(height: 4),
+            Text('Completa los datos de tu cosecha',
+                style: TextStyle(color: cs.onSurfaceVariant)),
+            const SizedBox(height: 20),
+            if (_ref == null)
+              const Padding(
+                padding: EdgeInsets.all(16),
+                child: Center(child: CircularProgressIndicator()),
+              )
+            else ...[
+              CampoEtiquetado(
+                'Variedad',
+                DropdownButtonFormField<int>(
+                  initialValue: _variedadId,
+                  hint: const Text('Selecciona la variedad'),
+                  items: _ref!.variedades
+                      .map((v) =>
+                          DropdownMenuItem(value: v.id, child: Text(v.nombre)))
                       .toList(),
+                  onChanged: (v) => setState(() => _variedadId = v),
+                  validator: (v) => v == null ? 'Selecciona la variedad' : null,
                 ),
               ),
-            const SizedBox(height: 8),
+              CampoEtiquetado(
+                'Calibre',
+                DropdownButtonFormField<int>(
+                  initialValue: _calibreId,
+                  hint: const Text('Selecciona el calibre'),
+                  items: _ref!.calibres
+                      .map((c) =>
+                          DropdownMenuItem(value: c.id, child: Text(c.nombre)))
+                      .toList(),
+                  onChanged: (v) => setState(() => _calibreId = v),
+                  validator: (v) => v == null ? 'Selecciona el calibre' : null,
+                ),
+              ),
+            ],
+            Row(children: [
+              Expanded(child: _numero(_cantidad, 'Cantidad disponible', 'bultos')),
+              const SizedBox(width: 12),
+              Expanded(child: _numero(_peso, 'Peso por bulto', 'kg')),
+            ]),
+            _numero(_precio, 'Precio por bulto', 'COP'),
+            CampoEtiquetado(
+              'Fecha de cosecha',
+              InkWell(
+                borderRadius: BorderRadius.circular(14),
+                onTap: _elegirFecha,
+                child: InputDecorator(
+                  decoration: const InputDecoration(
+                      prefixIcon: Icon(Icons.event_outlined)),
+                  child: Text(fechaLarga(
+                      _fechaCosecha.toIso8601String().split('T').first)),
+                ),
+              ),
+            ),
+            CampoEtiquetado(
+              'Descripción (opcional)',
+              TextFormField(
+                controller: _descripcion,
+                maxLines: 3,
+                maxLength: 300,
+                decoration: const InputDecoration(
+                    hintText: 'Ej.: cosecha seleccionada, lista para entregar'),
+              ),
+            ),
+            if (total > 0)
+              Container(
+                padding: const EdgeInsets.all(14),
+                margin: const EdgeInsets.only(bottom: 16),
+                decoration: BoxDecoration(
+                  color: cs.primaryContainer.withValues(alpha: 0.45),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Text('Valor total del lote: ${pesos(total)}',
+                    style: const TextStyle(fontWeight: FontWeight.w700)),
+              ),
+            if (_errores.isNotEmpty) ...[
+              CajaError(_errores),
+              const SizedBox(height: 16),
+            ],
             FilledButton(
               onPressed: _enviando ? null : _enviar,
               child: _enviando
                   ? const SizedBox(
-                      height: 18,
-                      width: 18,
+                      height: 20,
+                      width: 20,
                       child: CircularProgressIndicator(strokeWidth: 2))
-                  : Text(_esEdicion ? 'Guardar cambios' : 'Publicar'),
+                  : Text(_esEdicion ? 'Guardar cambios' : 'Guardar publicación'),
             ),
           ]),
         ),
@@ -195,16 +227,18 @@ class _LoteFormScreenState extends State<LoteFormScreen> {
     );
   }
 
-  Widget _numero(TextEditingController c, String etiqueta) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: TextFormField(
+  Widget _numero(TextEditingController c, String etiqueta, String sufijo) {
+    return CampoEtiquetado(
+      etiqueta,
+      TextFormField(
         controller: c,
         keyboardType: TextInputType.number,
-        decoration: InputDecoration(labelText: etiqueta),
+        inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.]'))],
+        decoration: InputDecoration(suffixText: sufijo),
+        onChanged: (_) => setState(() {}),
         validator: (v) {
           final n = double.tryParse(v ?? '');
-          if (n == null) return 'Ingrese un numero';
+          if (n == null) return 'Ingresa un número';
           if (n <= 0) return 'Debe ser mayor que cero'; // RN-04
           return null;
         },
