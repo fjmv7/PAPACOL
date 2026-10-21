@@ -11,14 +11,22 @@ class LoteCard extends StatelessWidget {
   final VoidCallback? alPulsar;
   final bool mostrarEstado;
 
-  const LoteCard({super.key, required this.lote, this.alPulsar, this.mostrarEstado = false});
+  const LoteCard(
+      {super.key,
+      required this.lote,
+      this.alPulsar,
+      this.mostrarEstado = false});
 
   Color _colorEstado() {
     switch (lote.estado) {
-      case 'DISPONIBLE': return Colors.green.shade600;
-      case 'RESERVADO':  return Colors.orange.shade700;
-      case 'VENDIDO':    return Colors.blue.shade700;
-      default:           return Colors.grey.shade600;
+      case 'DISPONIBLE':
+        return Colors.green.shade600;
+      case 'RESERVADO':
+        return Colors.orange.shade700;
+      case 'VENDIDO':
+        return Colors.blue.shade700;
+      default:
+        return Colors.grey.shade600;
     }
   }
 
@@ -39,7 +47,8 @@ class LoteCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
-                    color: _colorEstado(), borderRadius: BorderRadius.circular(12)),
+                    color: _colorEstado(),
+                    borderRadius: BorderRadius.circular(12)),
                 child: Text(lote.estado,
                     style: const TextStyle(color: Colors.white, fontSize: 11)),
               ),
@@ -50,7 +59,8 @@ class LoteCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('${lote.cantidadBultos} bultos de ${lote.pesoBultoKg.toStringAsFixed(0)} kg'),
+              Text(
+                  '${lote.cantidadBultos} bultos de ${lote.pesoBultoKg.toStringAsFixed(0)} kg'),
               Text('${lote.municipio} · Publicado el ${lote.fechaPublicacion}',
                   style: TextStyle(fontSize: 12, color: Colors.grey.shade700)),
             ],
