@@ -6,10 +6,16 @@
   "scripts": {
     "start": "node app.js",
     "dev": "node --watch app.js",
-    "test": "jest --runInBand --verbose",
-    "test:cobertura": "jest --coverage --runInBand"
+    "test": "jest --runInBand --verbose --testPathIgnorePatterns=tests/integracion/",
+    "test:cobertura": "jest --coverage --runInBand --testPathIgnorePatterns=tests/integracion/",
+    "test:e2e": "jest --runInBand --verbose tests/integracion/"
   },
-  "keywords": ["papacol", "api-rest", "express", "postgresql"],
+  "keywords": [
+    "papacol",
+    "api-rest",
+    "express",
+    "postgresql"
+  ],
   "author": "Jenny Paola Montanez Gonzalez - Fany Julieth Murcia Vega",
   "license": "MIT",
   "dependencies": {

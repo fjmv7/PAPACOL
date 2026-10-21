@@ -131,15 +131,37 @@ Comprobación desde otra terminal o desde el navegador:
 curl http://localhost:3000/api/v1/salud
 ```
 
-### 4.4 Ejecutar las pruebas unitarias
+### 4.4 Ejecutar las pruebas
 
 ```bash
 cd backend
-npm test              # 53 pruebas sobre la lógica de negocio
+npm test              # 80 pruebas: unitarias, integración de la API y tiempo de respuesta
 npm run test:cobertura
+npm run test:e2e      # 5 pruebas extremo a extremo contra PostgreSQL real (requiere la BD)
 ```
 
-Las pruebas **no requieren** que PostgreSQL esté corriendo: la capa de modelos se sustituye por dobles de prueba (RNF-10).
+| Tipo | Archivo | Qué comprueba |
+|---|---|---|
+| Unitarias | `tests/*.service.test.js` | Reglas de negocio RN-01 a RN-09, letras/números en el registro |
+| Integración | `tests/integracion.api.test.js`, `tests/catalogo.routes.test.js` | Ruta → middleware → servicio → errores, con los códigos HTTP de RF-01 a RF-10 |
+| Tiempo de respuesta | `tests/rendimiento.api.test.js` | Promedio < 50 ms y peor caso < 200 ms por petición |
+| Extremo a extremo | `tests/integracion/e2e.real.test.js` | Login < 1,5 s y catálogo real con p95 < 300 ms |
+
+`npm test` **no requiere** PostgreSQL: la capa de modelos se sustituye por dobles de prueba (RNF-10).
+
+En el cliente Flutter:
+
+```bash
+cd frontend
+flutter test          # 31 pruebas
+```
+
+| Archivo | Qué comprueba |
+|---|---|
+| `test/validadores_test.dart` | Reglas de cada campo y filtros de teclado (solo números, solo letras, decimales) |
+| `test/campos_test.dart` | En las pantallas reales no se pueden escribir letras en campos numéricos ni números en nombres |
+| `test/integracion_test.dart` | Pantalla → servicio → API simulada: login, registro, catálogo, detalle con y sin sesión |
+| `test/rendimiento_test.dart` | Tiempos de conversión y de dibujo del catálogo, y aviso cuando el servidor tarda demasiado |
 
 ### 4.5 Probar la API con Thunder Client
 
@@ -216,7 +238,7 @@ Base: `http://localhost:3000/api/v1`
 | PUT | `/lotes/:id` | Bearer PRODUCTOR | RF-06 | 200 · 403 lote ajeno · 404 inexistente · 409 retirado |
 | DELETE | `/lotes/:id` | Bearer PRODUCTOR | RF-07 | 200, estado RETIRADO · 409 si ya estaba retirado |
 | GET | `/catalogo` | — | RF-08, RF-09 | 200 · 400 con parámetros inválidos |
-| GET | `/catalogo/:id` | — | RF-10 | 200 · 404 si no está DISPONIBLE |
+| GET | `/catalogo/:id` | Bearer | RF-10, HU-10 | 200 con el contacto · 401 sin sesión · 404 si no está DISPONIBLE |
 
 **Parámetros de consulta de `/catalogo`:** `variedadId`, `calibreId`, `municipioId`, `precioMax`, `orden` (`precio_asc` \| `precio_desc` \| `reciente`), `pagina`, `limite` (máximo 100).
 

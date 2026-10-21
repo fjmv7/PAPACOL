@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
 import '../services/api_client.dart';
 import '../state/sesion.dart';
+import '../utils/validadores.dart';
 import '../widgets/comunes.dart';
 import 'contacto_screens.dart';
 
-String? _validarNueva(String? v) {
-  if (v == null || v.length < 8) return 'Debe tener al menos 8 caracteres';
-  if (!RegExp(r'\d').hasMatch(v)) return 'Debe contener al menos un número';
-  return null;
-}
+const _validarNueva = Validar.contrasenaNueva;
 
 class _CampoClave extends StatefulWidget {
   final TextEditingController controlador;
@@ -218,12 +215,11 @@ class _RecuperarContrasenaScreenState extends State<RecuperarContrasenaScreen> {
                 TextFormField(
                   controller: _codigo,
                   keyboardType: TextInputType.number,
+                  inputFormatters: Formatos.soloDigitos,
                   maxLength: 6,
                   decoration: const InputDecoration(
                       hintText: '6 dígitos', prefixIcon: Icon(Icons.pin_outlined)),
-                  validator: (v) => (v == null || !RegExp(r'^\d{6}$').hasMatch(v))
-                      ? 'El código tiene 6 dígitos'
-                      : null,
+                  validator: Validar.codigo,
                 ),
               ),
               _CampoClave(_nueva, 'Nueva contraseña', validador: _validarNueva),

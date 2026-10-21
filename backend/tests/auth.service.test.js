@@ -167,3 +167,22 @@ describe('PU-07 cambiarContrasena — RN-08', () => {
     expect(bcrypt.compareSync('Nueva.Clave2026', hash)).toBe(true);
   });
 });
+
+describe('PU-01b validarDatosRegistro — tipos de caracteres (RNF-09)', () => {
+  test('rechaza un nombre o apellido con numeros', () => {
+    const errores = authService.validarDatosRegistro({ ...datosValidos, nombre: 'J0se', apellido: 'R0drig3z' });
+    expect(errores).toContain('El nombre solo puede contener letras.');
+    expect(errores).toContain('El apellido solo puede contener letras.');
+  });
+
+  test('acepta tildes, ñ y nombres compuestos', () => {
+    expect(authService.validarDatosRegistro({ ...datosValidos, nombre: 'María José', apellido: 'Muñoz Peña' }))
+      .toEqual([]);
+  });
+
+  test('rechaza identificacion y telefono con letras', () => {
+    const errores = authService.validarDatosRegistro({ ...datosValidos, identificacion: '10ABC1010', telefono: '300-abc' });
+    expect(errores).toContain('La identificacion debe contener entre 6 y 20 digitos.');
+    expect(errores).toContain('El telefono debe contener entre 7 y 15 digitos.');
+  });
+});

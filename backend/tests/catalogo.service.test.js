@@ -100,3 +100,14 @@ describe('PU-19 consultarDetalle — validacion del identificador', () => {
       .rejects.toMatchObject({ codigoHttp: 404 });
   });
 });
+
+describe('PU-21 consultarCatalogo — el listado publico no expone el contacto (HU-10)', () => {
+  test('quita telefono y correo del productor en cada lote', async () => {
+    loteModel.listarCatalogo.mockResolvedValue({
+      lotes: [{ lote_id: 1, productor: 'Jose', productor_telefono: '300', productor_correo: 'a@b.co' }],
+      total: 1
+    });
+    const r = await catalogoService.consultarCatalogo({});
+    expect(r.lotes[0]).toEqual({ lote_id: 1, productor: 'Jose' });
+  });
+});

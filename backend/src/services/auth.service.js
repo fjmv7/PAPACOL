@@ -12,6 +12,8 @@ const { ErrorApp } = require('../middleware/error.middleware');
 
 const ROLES_VALIDOS = ['PRODUCTOR', 'COMPRADOR'];
 const PATRON_CORREO = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+// Solo letras (con tildes y ñ), espacios, apostrofo y guion: "Maria Jose", "D'Costa".
+const PATRON_NOMBRE = /^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ' -]+$/;
 
 /**
  * Valida los datos de registro. Devuelve la lista de errores encontrados.
@@ -24,9 +26,13 @@ function validarDatosRegistro(datos) {
   }
   if (!datos.nombre || datos.nombre.trim().length < 2) {
     errores.push('El nombre debe tener al menos 2 caracteres.');
+  } else if (!PATRON_NOMBRE.test(datos.nombre.trim())) {
+    errores.push('El nombre solo puede contener letras.');
   }
   if (!datos.apellido || datos.apellido.trim().length < 2) {
     errores.push('El apellido debe tener al menos 2 caracteres.');
+  } else if (!PATRON_NOMBRE.test(datos.apellido.trim())) {
+    errores.push('El apellido solo puede contener letras.');
   }
   if (!datos.correo || !PATRON_CORREO.test(datos.correo)) {
     errores.push('El correo electronico no tiene un formato valido.');

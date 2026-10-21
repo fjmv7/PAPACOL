@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import '../theme/tema.dart';
 import '../widgets/comunes.dart';
+import '../widgets/fotos.dart';
 import 'inicio_comprador_screen.dart';
 import 'login_screen.dart';
 
@@ -46,66 +47,21 @@ class _PresentacionScreenState extends State<PresentacionScreen> {
     return Scaffold(
       body: GestureDetector(
         onTap: _continuar,
-        child: const _FondoCampo(
-          child: Center(
+        child: Stack(fit: StackFit.expand, children: [
+          Image.asset(Fotos.campoRuana, fit: BoxFit.cover),
+          const ColoredBox(color: Color(0x99000000)),
+          const Center(
             child: Column(mainAxisSize: MainAxisSize.min, children: [
-              LogoPapacol(tamano: 96, claro: true),
-              SizedBox(height: 18),
-              Text('PAPACOL',
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 38,
-                      letterSpacing: 4,
-                      fontWeight: FontWeight.w800)),
-              SizedBox(height: 6),
+              LogoPapacol(tamano: 220, claro: true),
+              SizedBox(height: 14),
               Text('Del campo al comprador',
-                  style: TextStyle(color: Colors.white70, fontSize: 15)),
+                  style: TextStyle(color: Colors.white, fontSize: 16)),
             ]),
           ),
-        ),
+        ]),
       ),
     );
   }
-}
-
-/// Fondo verde con surcos, en lugar de la foto del cultivo.
-class _FondoCampo extends StatelessWidget {
-  final Widget child;
-  const _FondoCampo({required this.child});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [Color(0xFF3A805A), Paleta.verdeCampo, Color(0xFF1F4D35)],
-        ),
-      ),
-      child: CustomPaint(painter: _Surcos(), child: child),
-    );
-  }
-}
-
-class _Surcos extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final p = Paint()
-      ..color = Colors.white.withValues(alpha: 0.05)
-      ..strokeWidth = 18
-      ..style = PaintingStyle.stroke;
-    for (var i = 0; i < 14; i++) {
-      final y = size.height * 0.55 + i * 34.0;
-      final path = Path()
-        ..moveTo(-40, y + 60)
-        ..quadraticBezierTo(size.width / 2, y - 40, size.width + 40, y + 60);
-      canvas.drawPath(path, p);
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
 /// Bienvenida y elección de perfil (Canva, página 2: Campesino / Cliente).
@@ -121,26 +77,25 @@ class _BienvenidaScreenState extends State<BienvenidaScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _FondoCampo(
+      body: CarruselFondo(
+        leyendas: const [
+          'Cultivo de papa en la sabana',
+          'Surcos listos para la siembra',
+          'Cosecha en Cundinamarca',
+          'Papa recién sacada',
+          'Bultos listos para el comprador',
+        ],
         child: SafeArea(
           child: Center(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
+              padding: const EdgeInsets.fromLTRB(24, 24, 24, 56),
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 420),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const Center(child: LogoPapacol(tamano: 84, claro: true)),
-                    const SizedBox(height: 14),
-                    const Text('PAPACOL',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 22,
-                            letterSpacing: 3,
-                            fontWeight: FontWeight.w800)),
-                    const SizedBox(height: 28),
+                    const Center(child: LogoPapacol(tamano: 170, claro: true)),
+                    const SizedBox(height: 18),
                     const Text('Bienvenido',
                         textAlign: TextAlign.center,
                         style: TextStyle(
@@ -219,8 +174,8 @@ class _OpcionRol extends StatelessWidget {
       button: true,
       child: Material(
         color: seleccionado
-            ? Colors.white.withValues(alpha: 0.22)
-            : Colors.white.withValues(alpha: 0.08),
+            ? Colors.black.withValues(alpha: 0.35)
+            : Colors.black.withValues(alpha: 0.22),
         borderRadius: BorderRadius.circular(18),
         child: InkWell(
           borderRadius: BorderRadius.circular(18),
