@@ -67,12 +67,19 @@ function normalizarFiltros(query = {}) {
   };
 }
 
+/** Quita telefono y correo del productor de un lote del listado publico. */
+function ocultarContacto(lote) {
+  const { productor_telefono, productor_correo, ...publico } = lote;
+  return publico;
+}
+
 /** RF-08 / RF-09: catalogo publico paginado. */
 async function consultarCatalogo(query) {
   const filtros = normalizarFiltros(query);
   const { lotes, total } = await loteModel.listarCatalogo(filtros);
   return {
-    lotes,
+    // El contacto del productor solo se entrega en el detalle, con sesion (HU-10).
+    lotes: lotes.map(ocultarContacto),
     paginacion: {
       pagina: filtros.pagina,
       limite: filtros.limite,

@@ -4,7 +4,9 @@ import '../models/modelos.dart';
 import '../services/api_client.dart';
 import '../services/auth_service.dart';
 import '../state/sesion.dart';
+import '../utils/validadores.dart';
 import '../widgets/comunes.dart';
+import '../widgets/fotos.dart';
 import 'navegacion.dart';
 
 /// CFV-01 — Crear cuenta nueva (RF-01, RF-02; Canva página 6).
@@ -45,7 +47,12 @@ class _RegistroScreenState extends State<RegistroScreen> {
   @override
   void dispose() {
     for (final c in [
-      _identificacion, _nombre, _apellido, _correo, _telefono, _contrasena,
+      _identificacion,
+      _nombre,
+      _apellido,
+      _correo,
+      _telefono,
+      _contrasena,
       _confirmar
     ]) {
       c.dispose();
@@ -98,8 +105,8 @@ class _RegistroScreenState extends State<RegistroScreen> {
       irAInicio(context);
     } on ApiExcepcion catch (e) {
       if (mounted) {
-        setState(() =>
-            _errores = e.detalles.isEmpty ? [e.mensaje] : e.detalles);
+        setState(
+            () => _errores = e.detalles.isEmpty ? [e.mensaje] : e.detalles);
       }
     } catch (_) {
       if (mounted) {
@@ -112,9 +119,6 @@ class _RegistroScreenState extends State<RegistroScreen> {
       if (mounted) setState(() => _enviando = false);
     }
   }
-
-  String? _requerido(String? v, String campo) =>
-      (v == null || v.trim().length < 2) ? 'Ingresa $campo' : null;
 
   Widget _campo(TextEditingController c, String etiqueta, IconData icono,
       {String? Function(String?)? validador,
@@ -137,7 +141,6 @@ class _RegistroScreenState extends State<RegistroScreen> {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final digitos = [FilteringTextInputFormatter.digitsOnly];
     return Scaffold(
       appBar: AppBar(title: const Text('Crear cuenta nueva')),
       body: SafeArea(
@@ -148,6 +151,18 @@ class _RegistroScreenState extends State<RegistroScreen> {
             child: ListView(
               padding: const EdgeInsets.fromLTRB(24, 4, 24, 32),
               children: [
+                const EncabezadoFoto(
+                  ruta: Fotos.cosechaRecoleccion,
+                  alto: 130,
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Padding(
+                      padding: EdgeInsets.all(14),
+                      child: LogoPapacol(tamano: 100, claro: true),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 18),
                 Text('Vamos a crear una cuenta',
                     style: TextStyle(
                         fontSize: 24,
@@ -173,31 +188,29 @@ class _RegistroScreenState extends State<RegistroScreen> {
                 ),
                 const SizedBox(height: 22),
                 _campo(_nombre, 'Nombre', Icons.badge_outlined,
-                    validador: (v) => _requerido(v, 'tu nombre')),
+                    teclado: TextInputType.name,
+                    formatos: Formatos.soloLetras,
+                    validador: (v) => Validar.nombre(v, campo: 'tu nombre')),
                 _campo(_apellido, 'Apellidos', Icons.badge_outlined,
-                    validador: (v) => _requerido(v, 'tus apellidos')),
+                    teclado: TextInputType.name,
+                    formatos: Formatos.soloLetras,
+                    validador: (v) =>
+                        Validar.nombre(v, campo: 'tus apellidos')),
                 _campo(_identificacion, 'Número de identificación',
                     Icons.credit_card_outlined,
                     teclado: TextInputType.number,
-                    formatos: digitos,
-                    validador: (v) => (v == null || v.length < 6 || v.length > 20)
-                        ? 'Entre 6 y 20 dígitos'
-                        : null),
+                    formatos: Formatos.soloDigitos,
+                    validador: Validar.identificacion),
                 _campo(_correo, 'Correo electrónico', Icons.email_outlined,
                     teclado: TextInputType.emailAddress,
+                    formatos: Formatos.sinEspacios,
                     pista: 'nombre@correo.com',
-                    validador: (v) => (v == null ||
-                            !RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$')
-                                .hasMatch(v.trim()))
-                        ? 'Ingresa un correo válido'
-                        : null),
+                    validador: Validar.correo),
                 _campo(_telefono, 'Número de teléfono', Icons.phone_outlined,
                     teclado: TextInputType.phone,
-                    formatos: digitos,
+                    formatos: Formatos.soloDigitos,
                     pista: '3001234567',
-                    validador: (v) => (v == null || v.length < 7 || v.length > 15)
-                        ? 'Entre 7 y 15 dígitos'
-                        : null),
+                    validador: Validar.telefono),
                 CampoEtiquetado(
                   'Municipio',
                   DropdownButtonFormField<int>(
@@ -210,8 +223,8 @@ class _RegistroScreenState extends State<RegistroScreen> {
                           : 'Selecciona tu municipio',
                     ),
                     items: _municipios
-                        .map((m) =>
-                            DropdownMenuItem(value: m.id, child: Text(m.nombre)))
+                        .map((m) => DropdownMenuItem(
+                            value: m.id, child: Text(m.nombre)))
                         .toList(),
                     onChanged: (v) => setState(() => _municipioId = v),
                     validator: (v) =>
@@ -235,15 +248,7 @@ class _RegistroScreenState extends State<RegistroScreen> {
                         onPressed: () => setState(() => _verClave = !_verClave),
                       ),
                     ),
-                    validator: (v) {
-                      if (v == null || v.length < 8) {
-                        return 'Debe tener al menos 8 caracteres';
-                      }
-                      if (!RegExp(r'\d').hasMatch(v)) {
-                        return 'Debe contener al menos un número';
-                      }
-                      return null;
-                    },
+                    validator: Validar.contrasenaNueva,
                   ),
                 ),
                 CampoEtiquetado(
@@ -251,8 +256,8 @@ class _RegistroScreenState extends State<RegistroScreen> {
                   TextFormField(
                     controller: _confirmar,
                     obscureText: !_verClave,
-                    decoration:
-                        const InputDecoration(prefixIcon: Icon(Icons.lock_outline)),
+                    decoration: const InputDecoration(
+                        prefixIcon: Icon(Icons.lock_outline)),
                     validator: (v) => v != _contrasena.text
                         ? 'Las contraseñas no coinciden'
                         : null,
@@ -278,15 +283,18 @@ class _RegistroScreenState extends State<RegistroScreen> {
                       : const Text('Registrarte'),
                 ),
                 const SizedBox(height: 12),
-                Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                  Text('¿Tienes una cuenta?',
-                      style: TextStyle(color: cs.onSurfaceVariant)),
-                  TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text('Inicia sesión',
-                        style: TextStyle(fontWeight: FontWeight.w700)),
-                  ),
-                ]),
+                Wrap(
+                    alignment: WrapAlignment.center,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      Text('¿Tienes una cuenta?',
+                          style: TextStyle(color: cs.onSurfaceVariant)),
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text('Inicia sesión',
+                            style: TextStyle(fontWeight: FontWeight.w700)),
+                      ),
+                    ]),
               ],
             ),
           ),

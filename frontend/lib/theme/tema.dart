@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
 
-/// Paleta de la propuesta visual (Mockups_PAPACOL, diapositiva 2).
-/// Verde campo, verde suave, tierra, marfil y cosecha.
+/// Paleta tomada del logo de PAPACOL y de las fotos del campo: verde de la
+/// camisa y las hojas, café de la tierra, dorado de la cosecha y crema de la
+/// papa. El verde con texto blanco da 6,6:1 (WCAG AA pide 4,5:1).
 class Paleta {
-  static const verdeCampo = Color(0xFF276749);
-  static const verdeSuave = Color(0xFFCEE1AC);
-  static const tierra = Color(0xFF805B39);
-  static const marfil = Color(0xFFFFFDF7);
-  static const cosecha = Color(0xFFEBB748);
-  static const texto = Color(0xFF1F362A);
-  static const textoSuave = Color(0xFF69776C);
-  static const borde = Color(0xFFE0E6DA);
-  static const error = Color(0xFFB5513D);
+  static const verdeCampo = Color(0xFF55622A);
+  static const verdeSuave = Color(0xFFE2E8C6);
+  static const tierra = Color(0xFF5A3A1E);
+  static const marfil = Color(0xFFFBF6EA);
+  static const cosecha = Color(0xFFD4922A);
+  static const texto = Color(0xFF2E2414);
+  static const textoSuave = Color(0xFF6E6553);
+  static const borde = Color(0xFFE6DDC8);
+  static const error = Color(0xFFB0412E);
 }
 
 const _esquemaClaro = ColorScheme(
@@ -22,34 +23,34 @@ const _esquemaClaro = ColorScheme(
   onPrimaryContainer: Paleta.texto,
   secondary: Paleta.tierra,
   onSecondary: Colors.white,
-  secondaryContainer: Color(0xFFF1E6D8),
-  onSecondaryContainer: Color(0xFF4A3420),
+  secondaryContainer: Color(0xFFF0E2CF),
+  onSecondaryContainer: Color(0xFF3E2812),
   tertiary: Paleta.cosecha,
   onTertiary: Paleta.texto,
-  tertiaryContainer: Color(0xFFFBEFCF),
-  onTertiaryContainer: Color(0xFF5A4511),
+  tertiaryContainer: Color(0xFFF8E6C2),
+  onTertiaryContainer: Color(0xFF5A3B08),
   error: Paleta.error,
   onError: Colors.white,
   surface: Paleta.marfil,
   onSurface: Paleta.texto,
   onSurfaceVariant: Paleta.textoSuave,
-  outline: Color(0xFFB9C4B6),
+  outline: Color(0xFFC4B89C),
   outlineVariant: Paleta.borde,
   surfaceContainerLowest: Colors.white,
-  surfaceContainerLow: Color(0xFFF7F8F2),
-  surfaceContainer: Color(0xFFF1F4EC),
-  surfaceContainerHigh: Color(0xFFE7F1E5),
+  surfaceContainerLow: Color(0xFFF7F1E2),
+  surfaceContainer: Color(0xFFF2EBD9),
+  surfaceContainerHigh: Color(0xFFEDEBD5),
   surfaceContainerHighest: Paleta.borde,
 );
 
 /// Modo "Verde & Oscuro" (Canva, pantalla de perfil).
 const _esquemaOscuro = ColorScheme(
   brightness: Brightness.dark,
-  primary: Color(0xFF8FD1A8),
-  onPrimary: Color(0xFF0E3A23),
-  primaryContainer: Color(0xFF1E4D35),
+  primary: Color(0xFFB9CC85),
+  onPrimary: Color(0xFF26300A),
+  primaryContainer: Color(0xFF3C4718),
   onPrimaryContainer: Paleta.verdeSuave,
-  secondary: Color(0xFFD7B58F),
+  secondary: Color(0xFFDDB98F),
   onSecondary: Color(0xFF3E2A15),
   secondaryContainer: Color(0xFF4A3727),
   onSecondaryContainer: Color(0xFFF1E6D8),
@@ -59,16 +60,16 @@ const _esquemaOscuro = ColorScheme(
   onTertiaryContainer: Color(0xFFFBEFCF),
   error: Color(0xFFE7A08F),
   onError: Color(0xFF3A0E06),
-  surface: Color(0xFF121C16),
-  onSurface: Color(0xFFE6EDE4),
-  onSurfaceVariant: Color(0xFFA7B5AA),
-  outline: Color(0xFF52615A),
-  outlineVariant: Color(0xFF2E3B33),
-  surfaceContainerLowest: Color(0xFF18241D),
-  surfaceContainerLow: Color(0xFF1A271F),
-  surfaceContainer: Color(0xFF1C2A22),
-  surfaceContainerHigh: Color(0xFF233229),
-  surfaceContainerHighest: Color(0xFF2B3B31),
+  surface: Color(0xFF17170F),
+  onSurface: Color(0xFFEDE8DA),
+  onSurfaceVariant: Color(0xFFB8AF98),
+  outline: Color(0xFF5E5843),
+  outlineVariant: Color(0xFF353222),
+  surfaceContainerLowest: Color(0xFF1E1D13),
+  surfaceContainerLow: Color(0xFF212016),
+  surfaceContainer: Color(0xFF262418),
+  surfaceContainerHigh: Color(0xFF2E2C1E),
+  surfaceContainerHighest: Color(0xFF383524),
 );
 
 ThemeData temaClaro() => _construirTema(_esquemaClaro);

@@ -6,6 +6,7 @@ import '../state/mensajes.dart';
 import '../state/sesion.dart';
 import '../utils/formato.dart';
 import '../widgets/comunes.dart';
+import '../widgets/fotos.dart';
 import '../widgets/menu_lateral.dart';
 import 'catalogo_screen.dart';
 import 'cultivo_screens.dart';
@@ -41,6 +42,18 @@ class _InicioProductorScreenState extends State<InicioProductorScreen> {
       if (mounted) setState(() => _errorLotes = true);
     }
   }
+
+  Widget _cuadricula(List<Widget> accesos) => LayoutBuilder(
+        builder: (context, c) => GridView.count(
+          crossAxisCount: c.maxWidth > 600 ? 4 : 2,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          mainAxisSpacing: 10,
+          crossAxisSpacing: 10,
+          childAspectRatio: c.maxWidth > 600 ? 1.05 : 1.6,
+          children: accesos,
+        ),
+      );
 
   Future<void> _ir(Widget pantalla) async {
     await Navigator.push(context, MaterialPageRoute(builder: (_) => pantalla));
@@ -90,38 +103,35 @@ class _InicioProductorScreenState extends State<InicioProductorScreen> {
             Text('${u?.municipio ?? ''} · Campesino',
                 style: TextStyle(color: cs.onSurfaceVariant)),
             const SizedBox(height: 16),
-            Container(
+            EncabezadoFoto(
+              ruta: Fotos.cosechaRecoleccion,
+              alto: 150,
+              radio: 22,
+              child: Padding(
               padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: cs.primary,
-                borderRadius: BorderRadius.circular(22),
-              ),
-              child: Row(children: [
+              child: Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
                 Expanded(
                   child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Tus publicaciones',
-                            style: TextStyle(
-                                color: cs.onPrimary.withValues(alpha: 0.85))),
+                        const Text('Tus publicaciones',
+                            style: TextStyle(color: Colors.white70)),
                         const SizedBox(height: 4),
                         Text(
                             _lotes == null
                                 ? (_errorLotes ? 'Sin conexión' : 'Cargando…')
                                 : '${activos.length} lotes activos',
-                            style: TextStyle(
-                                color: cs.onPrimary,
+                            style: const TextStyle(
+                                color: Colors.white,
                                 fontSize: 26,
                                 fontWeight: FontWeight.w800)),
                         if (_lotes != null)
                           Text('$bultos bultos · ${pesos(valor)} en oferta',
-                              style: TextStyle(
-                                  color: cs.onPrimary.withValues(alpha: 0.85))),
+                              style: const TextStyle(color: Colors.white)),
                       ]),
                 ),
-                Icon(Icons.agriculture_rounded,
-                    size: 56, color: cs.onPrimary.withValues(alpha: 0.5)),
               ]),
+            ),
             ),
             if (_errorLotes)
               TextButton.icon(
@@ -130,53 +140,46 @@ class _InicioProductorScreenState extends State<InicioProductorScreen> {
                   label: const Text('Reintentar')),
             const SizedBox(height: 20),
             const TituloSeccion('Accesos rápidos'),
-            LayoutBuilder(builder: (context, c) {
-              final columnas = c.maxWidth > 600 ? 4 : 3;
-              final accesos = [
-                TarjetaAcceso(
-                    icono: Icons.add_circle_outline,
-                    titulo: 'Publicar lote',
-                    alPulsar: () => _ir(const LoteFormScreen())),
-                TarjetaAcceso(
-                    icono: Icons.inventory_2_outlined,
-                    titulo: 'Mi inventario',
-                    alPulsar: () => _ir(const MisLotesScreen())),
-                TarjetaAcceso(
-                    icono: Icons.mail_outline,
-                    titulo: 'Mensajes',
-                    insignia: Mensajeria.instancia.noLeidas,
-                    alPulsar: () => _ir(const MensajesScreen())),
-                TarjetaAcceso(
-                    icono: Icons.calendar_month_outlined,
-                    titulo: 'Mi cultivo',
-                    alPulsar: () => _ir(const MiCultivoScreen())),
-                TarjetaAcceso(
-                    icono: Icons.support_agent,
-                    titulo: 'Asistencia técnica',
-                    alPulsar: () => _ir(const AsistenciaTecnicaScreen())),
-                TarjetaAcceso(
-                    icono: Icons.groups_outlined,
-                    titulo: 'Compradores',
-                    alPulsar: () => _ir(const CompradoresScreen())),
-                TarjetaAcceso(
-                    icono: Icons.storefront_outlined,
-                    titulo: 'Catálogo público',
-                    alPulsar: () => _ir(const CatalogoScreen())),
-                TarjetaAcceso(
-                    icono: Icons.person_outline,
-                    titulo: 'Mi perfil',
-                    alPulsar: () => _ir(const PerfilScreen())),
-              ];
-              return GridView.count(
-                crossAxisCount: columnas,
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                mainAxisSpacing: 10,
-                crossAxisSpacing: 10,
-                childAspectRatio: 1.05,
-                children: accesos,
-              );
-            }),
+            _cuadricula([
+              TarjetaAcceso(
+                  icono: Icons.add_circle_outline,
+                  titulo: 'Publicar lote',
+                  alPulsar: () => _ir(const LoteFormScreen())),
+              TarjetaAcceso(
+                  icono: Icons.inventory_2_outlined,
+                  titulo: 'Mi inventario',
+                  alPulsar: () => _ir(const MisLotesScreen())),
+              TarjetaAcceso(
+                  icono: Icons.storefront_outlined,
+                  titulo: 'Catálogo público',
+                  alPulsar: () => _ir(const CatalogoScreen())),
+              TarjetaAcceso(
+                  icono: Icons.person_outline,
+                  titulo: 'Mi perfil',
+                  alPulsar: () => _ir(const PerfilScreen())),
+            ]),
+            const SizedBox(height: 20),
+            const TituloSeccion('Próximamente',
+                accion: EtiquetaDemo()),
+            _cuadricula([
+              TarjetaAcceso(
+                  icono: Icons.mail_outline,
+                  titulo: 'Mensajes',
+                  insignia: Mensajeria.instancia.noLeidas,
+                  alPulsar: () => _ir(const MensajesScreen())),
+              TarjetaAcceso(
+                  icono: Icons.calendar_month_outlined,
+                  titulo: 'Mi cultivo',
+                  alPulsar: () => _ir(const MiCultivoScreen())),
+              TarjetaAcceso(
+                  icono: Icons.support_agent,
+                  titulo: 'Asistencia técnica',
+                  alPulsar: () => _ir(const AsistenciaTecnicaScreen())),
+              TarjetaAcceso(
+                  icono: Icons.groups_outlined,
+                  titulo: 'Compradores',
+                  alPulsar: () => _ir(const CompradoresScreen())),
+            ]),
             const SizedBox(height: 20),
             const TituloSeccion('Clima en la finca'),
             Card(

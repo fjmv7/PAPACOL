@@ -19,6 +19,7 @@ class _MisLotesScreenState extends State<MisLotesScreen> {
   final LoteService _servicio = LoteService();
 
   List<Lote> _lotes = [];
+  String _filtro = 'TODOS';
   bool _cargando = true;
   String? _error;
 
@@ -163,8 +164,30 @@ class _MisLotesScreenState extends State<MisLotesScreen> {
               _resumen(miles(kg), 'Kg en oferta'),
             ]),
           ),
-          const SizedBox(height: 16),
-          for (final lote in _lotes)
+          const SizedBox(height: 14),
+          Wrap(spacing: 8, children: [
+            for (final (clave, texto) in const [
+              ('TODOS', 'Todos'),
+              ('DISPONIBLE', 'Disponibles'),
+              ('RETIRADO', 'Retirados'),
+            ])
+              ChoiceChip(
+                label: Text('$texto (${_contar(clave)})'),
+                selected: _filtro == clave,
+                showCheckmark: false,
+                labelStyle: TextStyle(
+                    color: _filtro == clave ? cs.onPrimary : cs.onSurface,
+                    fontWeight: FontWeight.w600),
+                onSelected: (_) => setState(() => _filtro = clave),
+              ),
+          ]),
+          const SizedBox(height: 14),
+          if (_visibles.isEmpty)
+            const Padding(
+              padding: EdgeInsets.all(24),
+              child: Center(child: Text('No hay lotes en este estado.')),
+            ),
+          for (final lote in _visibles)
             Padding(
               padding: const EdgeInsets.only(bottom: 12),
               child: LoteCard(
@@ -192,6 +215,14 @@ class _MisLotesScreenState extends State<MisLotesScreen> {
       ),
     );
   }
+
+  int _contar(String estado) => estado == 'TODOS'
+      ? _lotes.length
+      : _lotes.where((l) => l.estado == estado).length;
+
+  List<Lote> get _visibles => _filtro == 'TODOS'
+      ? _lotes
+      : _lotes.where((l) => l.estado == _filtro).toList();
 
   Widget _resumen(String valor, String etiqueta) {
     final cs = Theme.of(context).colorScheme;

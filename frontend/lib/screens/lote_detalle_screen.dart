@@ -9,6 +9,7 @@ import '../state/preferencias.dart';
 import '../state/sesion.dart';
 import '../utils/formato.dart';
 import '../widgets/comunes.dart';
+import '../widgets/fotos.dart';
 import '../widgets/lote_card.dart';
 import 'explorar_screens.dart';
 import 'login_screen.dart';
@@ -28,6 +29,7 @@ class _LoteDetalleScreenState extends State<LoteDetalleScreen> {
   final _servicio = CatalogoService();
   Lote? _lote;
   bool _cargando = true;
+  bool _requiereSesion = false;
   String? _error;
 
   @override
@@ -40,12 +42,23 @@ class _LoteDetalleScreenState extends State<LoteDetalleScreen> {
     setState(() {
       _cargando = true;
       _error = null;
+      _requiereSesion = false;
     });
     try {
       final lote = await _servicio.detalle(widget.loteId);
       if (mounted) setState(() => _lote = lote);
     } on ApiExcepcion catch (e) {
-      if (mounted) setState(() => _error = e.mensaje);
+      if (!mounted) return;
+      // HU-10: el detalle con el contacto del productor es para usuarios
+      // con sesión. Sin sesión el backend responde 401.
+      if (e.codigoHttp == 401) {
+        setState(() => _requiereSesion = true);
+      } else {
+        setState(() => _error = e.codigoHttp == 404
+            ? 'Este lote ya no está disponible. Es posible que el productor '
+                'lo haya retirado o vendido.'
+            : e.mensaje);
+      }
     } catch (_) {
       if (mounted) setState(() => _error = 'No fue posible conectar con el servidor.');
     } finally {
@@ -81,7 +94,25 @@ class _LoteDetalleScreenState extends State<LoteDetalleScreen> {
       ),
       body: _cargando
           ? const Center(child: CircularProgressIndicator())
-          : _error != null
+          : _requiereSesion
+              ? EstadoVacio(
+                  icono: Icons.lock_outline,
+                  titulo: 'Inicia sesión para ver este lote',
+                  detalle: 'El detalle incluye el teléfono del productor, '
+                      'por eso solo lo ven los usuarios registrados.',
+                  accion: FilledButton(
+                    onPressed: () async {
+                      final ok = await Navigator.push<bool>(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) =>
+                                  const LoginScreen(volverAlTerminar: true)));
+                      if (ok == true) _cargar();
+                    },
+                    child: const Text('Iniciar sesión'),
+                  ),
+                )
+              : _error != null
               ? EstadoError(mensaje: _error!, alReintentar: _cargar)
               : _construir(_lote!),
       bottomNavigationBar: _lote == null
@@ -110,20 +141,19 @@ class _LoteDetalleScreenState extends State<LoteDetalleScreen> {
 
   Widget _construir(Lote l) {
     final cs = Theme.of(context).colorScheme;
-    final color = colorVariedad(l.variedad);
     return Centrado(
       ancho: 640,
       child: ListView(padding: const EdgeInsets.all(20), children: [
-        Container(
-          height: 170,
-          decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.14),
-            borderRadius: BorderRadius.circular(24),
+        EncabezadoFoto(
+          ruta: Fotos.porVariedad(l.variedad),
+          alto: 200,
+          child: Align(
+            alignment: Alignment.topLeft,
+            child: Padding(
+              padding: const EdgeInsets.all(14),
+              child: ChipEstado(l.estado),
+            ),
           ),
-          child: Stack(children: [
-            Center(child: Icon(Icons.spa_rounded, size: 84, color: color)),
-            Positioned(left: 14, top: 14, child: ChipEstado(l.estado)),
-          ]),
         ),
         const SizedBox(height: 20),
         Text('Papa ${l.variedad}',
@@ -315,7 +345,7 @@ Future<void> mostrarContacto(BuildContext context, Lote l) async {
           onTap: () {
             Navigator.pop(hoja);
             if (!Sesion.instancia.autenticado) {
-              abrir(context, const LoginScreen());
+              abrir(context, const LoginScreen(volverAlTerminar: true));
               return;
             }
             final c = Mensajeria.instancia

@@ -4,6 +4,7 @@ import '../services/api_client.dart';
 import '../services/auth_service.dart';
 import '../services/catalogo_service.dart';
 import '../state/sesion.dart';
+import '../utils/validadores.dart';
 import '../widgets/comunes.dart';
 import '../widgets/lote_card.dart';
 import 'lote_detalle_screen.dart';
@@ -179,6 +180,7 @@ class _CatalogoVistaState extends State<CatalogoVista> {
                 TextField(
                   controller: precio,
                   keyboardType: TextInputType.number,
+                  inputFormatters: Formatos.soloDigitos,
                   decoration: const InputDecoration(
                       labelText: 'Precio máximo por bulto',
                       prefixText: r'$ '),

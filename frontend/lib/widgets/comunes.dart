@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
-/// Logo de PAPACOL: hoja dentro de un círculo verde.
+/// Logo de PAPACOL: el campesino con la cosecha (assets/img).
+/// [claro] usa la versión con letras crema, para fondos oscuros o fotos.
 class LogoPapacol extends StatelessWidget {
   final double tamano;
   final bool claro;
@@ -8,19 +9,19 @@ class LogoPapacol extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Container(
-      width: tamano,
-      height: tamano,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: claro ? Colors.white.withValues(alpha: 0.16) : cs.primaryContainer,
-        border: Border.all(
-            color: claro ? Colors.white54 : cs.primary.withValues(alpha: 0.25),
-            width: 2),
+    return Semantics(
+      label: 'Logo de PAPACOL',
+      image: true,
+      child: Image.asset(
+        claro
+            ? 'assets/img/logo_papacol_claro.png'
+            : 'assets/img/logo_papacol.png',
+        height: tamano,
+        fit: BoxFit.contain,
+        errorBuilder: (_, __, ___) => Icon(Icons.eco_rounded,
+            size: tamano * 0.6,
+            color: claro ? Colors.white : Theme.of(context).colorScheme.primary),
       ),
-      child: Icon(Icons.eco_rounded,
-          size: tamano * 0.55, color: claro ? Colors.white : cs.primary),
     );
   }
 }
