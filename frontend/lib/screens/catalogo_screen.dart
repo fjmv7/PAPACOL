@@ -6,6 +6,7 @@ import '../services/catalogo_service.dart';
 import '../state/sesion.dart';
 import '../utils/validadores.dart';
 import '../widgets/comunes.dart';
+import '../widgets/fotos.dart';
 import '../widgets/lote_card.dart';
 import 'lote_detalle_screen.dart';
 import 'navegacion.dart';
@@ -182,8 +183,7 @@ class _CatalogoVistaState extends State<CatalogoVista> {
                   keyboardType: TextInputType.number,
                   inputFormatters: Formatos.soloDigitos,
                   decoration: const InputDecoration(
-                      labelText: 'Precio máximo por bulto',
-                      prefixText: r'$ '),
+                      labelText: 'Precio máximo por bulto', prefixText: r'$ '),
                 ),
                 const SizedBox(height: 12),
                 DropdownButtonFormField<String>(
@@ -254,51 +254,35 @@ class _CatalogoVistaState extends State<CatalogoVista> {
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (widget.mostrarSaludo) ...[
-                      Text(u == null ? '¡Hola! 👋' : '¡Hola, ${u.nombre}! 👋',
-                          style: TextStyle(
-                              color: cs.onSurfaceVariant, fontSize: 15)),
-                      const SizedBox(height: 2),
-                      Text('Encuentra tu próxima cosecha',
-                          style: TextStyle(
-                              fontSize: 26,
-                              fontWeight: FontWeight.w800,
-                              color: cs.onSurface)),
-                      const SizedBox(height: 14),
-                    ],
-                    Row(children: [
-                      Expanded(
-                        child: TextField(
-                          controller: _busqueda,
-                          textInputAction: TextInputAction.search,
-                          decoration: InputDecoration(
-                            hintText: 'Buscar papa, variedad o zona',
-                            prefixIcon: const Icon(Icons.search),
-                            suffixIcon: _busqueda.text.isEmpty
-                                ? null
-                                : IconButton(
-                                    tooltip: 'Borrar búsqueda',
-                                    icon: const Icon(Icons.close),
-                                    onPressed: _busqueda.clear,
-                                  ),
-                          ),
+                    if (widget.mostrarSaludo)
+                      // Sección con foto: saludo y buscador sobre la cosecha.
+                      EncabezadoFoto(
+                        ruta: Fotos.cosechaAmarilla,
+                        alto: null,
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                    u == null
+                                        ? '¡Hola! 👋'
+                                        : '¡Hola, ${u.nombre}! 👋',
+                                    style: const TextStyle(
+                                        color: Colors.white70, fontSize: 15)),
+                                const SizedBox(height: 2),
+                                const Text('Encuentra tu próxima cosecha',
+                                    style: TextStyle(
+                                        fontSize: 26,
+                                        fontWeight: FontWeight.w800,
+                                        color: Colors.white)),
+                                const SizedBox(height: 14),
+                                _buscador(),
+                              ]),
                         ),
-                      ),
-                      const SizedBox(width: 10),
-                      Badge(
-                        isLabelVisible: _filtrosActivos > 0,
-                        label: Text('$_filtrosActivos'),
-                        child: IconButton.filledTonal(
-                          tooltip: 'Filtros',
-                          style: IconButton.styleFrom(
-                              minimumSize: const Size(52, 52),
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(14))),
-                          onPressed: _abrirFiltros,
-                          icon: const Icon(Icons.tune),
-                        ),
-                      ),
-                    ]),
+                      )
+                    else
+                      _buscador(),
                     if (_ref != null) ...[
                       const SizedBox(height: 16),
                       const Text('Categorías',
@@ -311,7 +295,8 @@ class _CatalogoVistaState extends State<CatalogoVista> {
                           scrollDirection: Axis.horizontal,
                           children: [
                             _chip('Todas', null),
-                            ..._ref!.variedades.map((v) => _chip(v.nombre, v.id)),
+                            ..._ref!.variedades
+                                .map((v) => _chip(v.nombre, v.id)),
                           ],
                         ),
                       ),
@@ -331,6 +316,42 @@ class _CatalogoVistaState extends State<CatalogoVista> {
         ..._cuerpo(visibles),
       ]),
     );
+  }
+
+  Widget _buscador() {
+    return Row(children: [
+      Expanded(
+        child: TextField(
+          controller: _busqueda,
+          textInputAction: TextInputAction.search,
+          decoration: InputDecoration(
+            hintText: 'Buscar papa, variedad o zona',
+            prefixIcon: const Icon(Icons.search),
+            suffixIcon: _busqueda.text.isEmpty
+                ? null
+                : IconButton(
+                    tooltip: 'Borrar búsqueda',
+                    icon: const Icon(Icons.close),
+                    onPressed: _busqueda.clear,
+                  ),
+          ),
+        ),
+      ),
+      const SizedBox(width: 10),
+      Badge(
+        isLabelVisible: _filtrosActivos > 0,
+        label: Text('$_filtrosActivos'),
+        child: IconButton.filledTonal(
+          tooltip: 'Filtros',
+          style: IconButton.styleFrom(
+              minimumSize: const Size(52, 52),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14))),
+          onPressed: _abrirFiltros,
+          icon: const Icon(Icons.tune),
+        ),
+      ),
+    ]);
   }
 
   Widget _chip(String texto, int? id) {

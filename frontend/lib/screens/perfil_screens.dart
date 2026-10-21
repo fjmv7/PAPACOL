@@ -6,6 +6,7 @@ import '../state/preferencias.dart';
 import '../state/sesion.dart';
 import '../utils/formato.dart';
 import '../widgets/comunes.dart';
+import '../widgets/fotos.dart';
 import '../widgets/lote_card.dart';
 import 'contacto_screens.dart';
 import 'contrasena_screens.dart';
@@ -45,9 +46,11 @@ class PerfilVista extends StatelessWidget {
                 const LogoPapacol(tamano: 64),
                 const SizedBox(height: 12),
                 const Text('Estás explorando sin cuenta',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+                    style:
+                        TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
                 const SizedBox(height: 6),
-                Text('Inicia sesión para guardar mensajes y contactar productores.',
+                Text(
+                    'Inicia sesión para guardar mensajes y contactar productores.',
                     textAlign: TextAlign.center,
                     style: TextStyle(color: cs.onSurfaceVariant)),
                 const SizedBox(height: 16),
@@ -59,22 +62,32 @@ class PerfilVista extends StatelessWidget {
             ),
           )
         else ...[
-          Center(child: AvatarIniciales(u.nombreCompleto, radio: 44)),
-          const SizedBox(height: 12),
-          Text(u.nombreCompleto,
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800)),
-          Text(u.correo,
-              textAlign: TextAlign.center,
-              style: TextStyle(color: cs.onSurfaceVariant)),
-          const SizedBox(height: 6),
-          Center(
-            child: Chip(
-              avatar: Icon(
-                  u.esProductor ? Icons.agriculture : Icons.storefront,
-                  size: 18,
-                  color: cs.primary),
-              label: Text(u.esProductor ? 'Campesino' : 'Cliente'),
+          EncabezadoFoto(
+            ruta: Fotos.bultos,
+            alto: null,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 22, horizontal: 16),
+              child: Column(children: [
+                Center(child: AvatarIniciales(u.nombreCompleto, radio: 44)),
+                const SizedBox(height: 12),
+                Text(u.nombreCompleto,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.white)),
+                Text(u.correo,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(color: Colors.white70)),
+                const SizedBox(height: 8),
+                Chip(
+                  avatar: Icon(
+                      u.esProductor ? Icons.agriculture : Icons.storefront,
+                      size: 18,
+                      color: cs.primary),
+                  label: Text(u.esProductor ? 'Campesino' : 'Cliente'),
+                ),
+              ]),
             ),
           ),
         ],
@@ -121,7 +134,8 @@ class PerfilVista extends StatelessWidget {
                   text: 'Conoce PAPACOL: la app que conecta a los productores '
                       'de papa de Carmen de Carupa con los compradores de Ubaté.'));
               ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                  content: Text('Mensaje copiado. Pégalo donde quieras compartirlo.')));
+                  content: Text(
+                      'Mensaje copiado. Pégalo donde quieras compartirlo.')));
             }),
             const Divider(),
             _Fila(Icons.support_agent, 'Contáctanos',
@@ -133,7 +147,7 @@ class PerfilVista extends StatelessWidget {
           OutlinedButton.icon(
             style: OutlinedButton.styleFrom(
                 foregroundColor: cs.error, side: BorderSide(color: cs.error)),
-            onPressed: () => cerrarSesion(context),
+            onPressed: cerrarSesion,
             icon: const Icon(Icons.power_settings_new),
             label: const Text('Cerrar sesión'),
           ),
@@ -154,7 +168,8 @@ class PerfilVista extends StatelessWidget {
             'en tus lotes para identificar la zona.'),
         actions: [
           FilledButton(
-              onPressed: () => Navigator.pop(d), child: const Text('Entendido')),
+              onPressed: () => Navigator.pop(d),
+              child: const Text('Entendido')),
         ],
       ),
     );
@@ -167,7 +182,8 @@ class _Fila extends StatelessWidget {
   final VoidCallback alPulsar;
   final String? detalle;
   final Color? color;
-  const _Fila(this.icono, this.texto, this.alPulsar, {this.detalle, this.color});
+  const _Fila(this.icono, this.texto, this.alPulsar,
+      {this.detalle, this.color});
 
   @override
   Widget build(BuildContext context) => ListTile(
@@ -222,7 +238,9 @@ class AjustesCuentaScreen extends StatelessWidget {
         child: ListView(padding: const EdgeInsets.all(20), children: [
           Text(sesion.esProductor ? 'Campesino' : 'Cliente',
               style: TextStyle(
-                  fontSize: 24, fontWeight: FontWeight.w800, color: cs.primary)),
+                  fontSize: 24,
+                  fontWeight: FontWeight.w800,
+                  color: cs.primary)),
           const SizedBox(height: 16),
           Card(
             child: Column(children: [
@@ -272,6 +290,14 @@ class AjustesCuentaScreen extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           const Align(alignment: Alignment.centerLeft, child: EtiquetaDemo()),
+          const SizedBox(height: 20),
+          OutlinedButton.icon(
+            style: OutlinedButton.styleFrom(
+                foregroundColor: cs.error, side: BorderSide(color: cs.error)),
+            onPressed: cerrarSesion,
+            icon: const Icon(Icons.power_settings_new),
+            label: const Text('Cerrar sesión'),
+          ),
         ]),
       ),
     );
@@ -362,7 +388,8 @@ class InfoScreen extends StatelessWidget {
           for (final p in parrafos)
             Padding(
               padding: const EdgeInsets.only(bottom: 14),
-              child: Text(p, style: const TextStyle(fontSize: 15, height: 1.55)),
+              child:
+                  Text(p, style: const TextStyle(fontSize: 15, height: 1.55)),
             ),
         ]),
       ),
@@ -416,12 +443,12 @@ class _NotificacionesScreenState extends State<NotificacionesScreen> {
                     leading: MiniaturaLote(l.variedad, tamano: 46),
                     title: Text('Nuevo lote de ${l.variedad}',
                         style: const TextStyle(fontWeight: FontWeight.w700)),
-                    subtitle: Text(
-                        '${l.productor} · ${l.municipio}\n'
+                    subtitle: Text('${l.productor} · ${l.municipio}\n'
                         '${l.cantidadBultos} bultos a ${pesos(l.precioBulto)} · '
                         '${fechaLarga(l.fechaPublicacion)}'),
                     isThreeLine: true,
-                    onTap: () => abrir(context, LoteDetalleScreen(loteId: l.id)),
+                    onTap: () =>
+                        abrir(context, LoteDetalleScreen(loteId: l.id)),
                   ),
                 );
               },
