@@ -45,7 +45,10 @@ class _LoteFormScreenState extends State<LoteFormScreen> {
       _calibreId = l.calibreId;
       _fechaCosecha = DateTime.tryParse(l.fechaCosecha) ?? DateTime.now();
     }
-    _auth.referencias().then((r) => setState(() => _ref = r)).catchError((_) => null);
+    _auth
+        .referencias()
+        .then((r) => setState(() => _ref = r))
+        .catchError((_) => null);
   }
 
   Future<void> _elegirFecha() async {
@@ -64,7 +67,10 @@ class _LoteFormScreenState extends State<LoteFormScreen> {
       setState(() => _errores = ['Debe seleccionar variedad y calibre.']);
       return;
     }
-    setState(() { _enviando = true; _errores = []; });
+    setState(() {
+      _enviando = true;
+      _errores = [];
+    });
     final fecha = _fechaCosecha.toIso8601String().split('T').first;
     try {
       if (_esEdicion) {
@@ -75,7 +81,9 @@ class _LoteFormScreenState extends State<LoteFormScreen> {
           'pesoBultoKg': double.parse(_peso.text),
           'precioBulto': double.parse(_precio.text),
           'fechaCosecha': fecha,
-          'descripcion': _descripcion.text.trim().isEmpty ? null : _descripcion.text.trim(),
+          'descripcion': _descripcion.text.trim().isEmpty
+              ? null
+              : _descripcion.text.trim(),
         });
       } else {
         await _servicio.crear(
@@ -85,15 +93,20 @@ class _LoteFormScreenState extends State<LoteFormScreen> {
           pesoBultoKg: double.parse(_peso.text),
           precioBulto: double.parse(_precio.text),
           fechaCosecha: fecha,
-          descripcion: _descripcion.text.trim().isEmpty ? null : _descripcion.text.trim(),
+          descripcion: _descripcion.text.trim().isEmpty
+              ? null
+              : _descripcion.text.trim(),
         );
       }
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(_esEdicion ? 'Lote actualizado.' : 'Lote publicado correctamente.')));
+          content: Text(_esEdicion
+              ? 'Lote actualizado.'
+              : 'Lote publicado correctamente.')));
       Navigator.pop(context, true);
     } on ApiExcepcion catch (e) {
-      setState(() => _errores = e.detalles.isNotEmpty ? e.detalles : [e.mensaje]);
+      setState(
+          () => _errores = e.detalles.isNotEmpty ? e.detalles : [e.mensaje]);
     } catch (_) {
       setState(() => _errores = ['No fue posible conectar con el servidor.']);
     } finally {
@@ -109,22 +122,26 @@ class _LoteFormScreenState extends State<LoteFormScreen> {
         padding: const EdgeInsets.all(20),
         child: Form(
           key: _formulario,
-          child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
             if (_ref != null) ...[
               DropdownButtonFormField<int>(
-                value: _variedadId,
-                decoration: const InputDecoration(labelText: 'Variedad de papa'),
+                initialValue: _variedadId,
+                decoration:
+                    const InputDecoration(labelText: 'Variedad de papa'),
                 items: _ref!.variedades
-                    .map((v) => DropdownMenuItem(value: v.id, child: Text(v.nombre)))
+                    .map((v) =>
+                        DropdownMenuItem(value: v.id, child: Text(v.nombre)))
                     .toList(),
                 onChanged: (v) => setState(() => _variedadId = v),
               ),
               const SizedBox(height: 12),
               DropdownButtonFormField<int>(
-                value: _calibreId,
+                initialValue: _calibreId,
                 decoration: const InputDecoration(labelText: 'Calibre'),
                 items: _ref!.calibres
-                    .map((c) => DropdownMenuItem(value: c.id, child: Text(c.nombre)))
+                    .map((c) =>
+                        DropdownMenuItem(value: c.id, child: Text(c.nombre)))
                     .toList(),
                 onChanged: (v) => setState(() => _calibreId = v),
               ),
@@ -137,7 +154,8 @@ class _LoteFormScreenState extends State<LoteFormScreen> {
               controller: _descripcion,
               maxLines: 2,
               maxLength: 300,
-              decoration: const InputDecoration(labelText: 'Descripcion (opcional)'),
+              decoration:
+                  const InputDecoration(labelText: 'Descripcion (opcional)'),
             ),
             ListTile(
               contentPadding: EdgeInsets.zero,
@@ -150,12 +168,14 @@ class _LoteFormScreenState extends State<LoteFormScreen> {
               Container(
                 padding: const EdgeInsets.all(12),
                 margin: const EdgeInsets.only(bottom: 12),
-                decoration:
-                    BoxDecoration(color: Colors.red.shade50, borderRadius: BorderRadius.circular(8)),
+                decoration: BoxDecoration(
+                    color: Colors.red.shade50,
+                    borderRadius: BorderRadius.circular(8)),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: _errores
-                      .map((e) => Text('• $e', style: const TextStyle(color: Colors.red)))
+                      .map((e) => Text('• $e',
+                          style: const TextStyle(color: Colors.red)))
                       .toList(),
                 ),
               ),
@@ -163,7 +183,10 @@ class _LoteFormScreenState extends State<LoteFormScreen> {
             FilledButton(
               onPressed: _enviando ? null : _enviar,
               child: _enviando
-                  ? const SizedBox(height: 18, width: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                  ? const SizedBox(
+                      height: 18,
+                      width: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2))
                   : Text(_esEdicion ? 'Guardar cambios' : 'Publicar'),
             ),
           ]),
@@ -182,7 +205,7 @@ class _LoteFormScreenState extends State<LoteFormScreen> {
         validator: (v) {
           final n = double.tryParse(v ?? '');
           if (n == null) return 'Ingrese un numero';
-          if (n <= 0) return 'Debe ser mayor que cero';  // RN-04
+          if (n <= 0) return 'Debe ser mayor que cero'; // RN-04
           return null;
         },
       ),

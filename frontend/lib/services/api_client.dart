@@ -33,15 +33,18 @@ class ApiClient {
         if (_token != null) 'Authorization': 'Bearer $_token',
       };
 
-  Future<Map<String, dynamic>> get(String ruta, {Map<String, String>? consulta}) async {
+  Future<Map<String, dynamic>> get(String ruta,
+      {Map<String, String>? consulta}) async {
     final uri = Uri.parse('${ApiConfig.urlBase}$ruta')
         .replace(queryParameters: consulta?.isEmpty ?? true ? null : consulta);
-    final respuesta =
-        await http.get(uri, headers: _cabeceras()).timeout(ApiConfig.tiempoLimite);
+    final respuesta = await http
+        .get(uri, headers: _cabeceras())
+        .timeout(ApiConfig.tiempoLimite);
     return _procesar(respuesta);
   }
 
-  Future<Map<String, dynamic>> post(String ruta, Map<String, dynamic> cuerpo) async {
+  Future<Map<String, dynamic>> post(
+      String ruta, Map<String, dynamic> cuerpo) async {
     final respuesta = await http
         .post(Uri.parse('${ApiConfig.urlBase}$ruta'),
             headers: _cabeceras(), body: jsonEncode(cuerpo))
@@ -49,7 +52,8 @@ class ApiClient {
     return _procesar(respuesta);
   }
 
-  Future<Map<String, dynamic>> put(String ruta, Map<String, dynamic> cuerpo) async {
+  Future<Map<String, dynamic>> put(
+      String ruta, Map<String, dynamic> cuerpo) async {
     final respuesta = await http
         .put(Uri.parse('${ApiConfig.urlBase}$ruta'),
             headers: _cabeceras(), body: jsonEncode(cuerpo))
@@ -75,7 +79,9 @@ class ApiClient {
       return cuerpo;
     }
 
-    final detalles = (cuerpo['detalles'] as List?)?.map((e) => e.toString()).toList() ?? <String>[];
+    final detalles =
+        (cuerpo['detalles'] as List?)?.map((e) => e.toString()).toList() ??
+            <String>[];
     throw ApiExcepcion(
       cuerpo['mensaje']?.toString() ?? 'Error de comunicacion con el servidor.',
       respuesta.statusCode,

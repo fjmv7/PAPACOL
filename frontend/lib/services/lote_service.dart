@@ -30,7 +30,9 @@ class LoteService {
   /// RF-05 — GET /lotes/mios (200)
   Future<List<Lote>> misLotes() async {
     final r = await _api.get('/lotes/mios');
-    return (r['datos'] as List).map((e) => Lote.desdeJson(e as Map<String, dynamic>)).toList();
+    return (r['datos'] as List)
+        .map((e) => Lote.desdeJson(e as Map<String, dynamic>))
+        .toList();
   }
 
   /// RF-06 — PUT /lotes/:id (200)
