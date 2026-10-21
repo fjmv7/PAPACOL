@@ -88,7 +88,7 @@ class _BienvenidaScreenState extends State<BienvenidaScreen> {
         child: SafeArea(
           child: Center(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(24, 24, 24, 56),
+              padding: const EdgeInsets.fromLTRB(24, 24, 24, 96),
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 420),
                 child: Column(
@@ -136,7 +136,8 @@ class _BienvenidaScreenState extends State<BienvenidaScreen> {
                     ),
                     const SizedBox(height: 10),
                     TextButton(
-                      style: TextButton.styleFrom(foregroundColor: Colors.white),
+                      style:
+                          TextButton.styleFrom(foregroundColor: Colors.white),
                       onPressed: () => Navigator.push(
                           context,
                           MaterialPageRoute(

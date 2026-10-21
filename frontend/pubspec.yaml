@@ -25,3 +25,8 @@ flutter:
   assets:
     - assets/img/
     - assets/img/fotos/
+  fonts:
+    - family: NotoSerifDisplay
+      fonts:
+        - asset: assets/fonts/NotoSerifDisplay-Bold.ttf
+          weight: 700

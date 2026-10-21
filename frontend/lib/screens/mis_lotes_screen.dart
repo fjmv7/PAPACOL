@@ -4,6 +4,7 @@ import '../services/api_client.dart';
 import '../services/lote_service.dart';
 import '../utils/formato.dart';
 import '../widgets/comunes.dart';
+import '../widgets/fotos.dart';
 import '../widgets/lote_card.dart';
 import 'lote_form_screen.dart';
 
@@ -152,17 +153,18 @@ class _MisLotesScreenState extends State<MisLotesScreen> {
       child: ListView(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
         children: [
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: cs.primaryContainer.withValues(alpha: 0.45),
-              borderRadius: BorderRadius.circular(18),
+          EncabezadoFoto(
+            ruta: Fotos.cosechaRoja,
+            alto: null,
+            radio: 18,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 8),
+              child: Row(children: [
+                _resumen('${disponibles.length}', 'Disponibles'),
+                _resumen('$bultos', 'Bultos'),
+                _resumen(miles(kg), 'Kg en oferta'),
+              ]),
             ),
-            child: Row(children: [
-              _resumen('${disponibles.length}', 'Disponibles'),
-              _resumen('$bultos', 'Bultos'),
-              _resumen(miles(kg), 'Kg en oferta'),
-            ]),
           ),
           const SizedBox(height: 14),
           Wrap(spacing: 8, children: [
@@ -202,9 +204,11 @@ class _MisLotesScreenState extends State<MisLotesScreen> {
                           label: const Text('Editar'),
                         ),
                         TextButton.icon(
-                          style: TextButton.styleFrom(foregroundColor: cs.error),
+                          style:
+                              TextButton.styleFrom(foregroundColor: cs.error),
                           onPressed: () => _retirar(lote),
-                          icon: const Icon(Icons.remove_circle_outline, size: 18),
+                          icon:
+                              const Icon(Icons.remove_circle_outline, size: 18),
                           label: const Text('Retirar'),
                         ),
                         const SizedBox(width: 8),
@@ -225,13 +229,15 @@ class _MisLotesScreenState extends State<MisLotesScreen> {
       : _lotes.where((l) => l.estado == _filtro).toList();
 
   Widget _resumen(String valor, String etiqueta) {
-    final cs = Theme.of(context).colorScheme;
     return Expanded(
       child: Column(children: [
         Text(valor,
-            style: TextStyle(
-                fontSize: 22, fontWeight: FontWeight.w800, color: cs.primary)),
-        Text(etiqueta, style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant)),
+            style: const TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.w800,
+                color: Colors.white)),
+        Text(etiqueta,
+            style: const TextStyle(fontSize: 12, color: Colors.white70)),
       ]),
     );
   }

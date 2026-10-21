@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'screens/bienvenida_screen.dart';
+import 'screens/navegacion.dart';
 import 'state/preferencias.dart';
 import 'theme/tema.dart';
 
@@ -23,6 +24,7 @@ class PapacolApp extends StatelessWidget {
         theme: temaClaro(),
         darkTheme: temaOscuro(),
         themeMode: prefs.modoOscuro ? ThemeMode.dark : ThemeMode.light,
+        navigatorKey: navegadorRaiz,
         home: const PresentacionScreen(),
       ),
     );

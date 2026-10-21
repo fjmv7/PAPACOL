@@ -37,7 +37,8 @@ class MenuLateral extends StatelessWidget {
             () => ir(const SimuladorPreciosScreen())),
         _Opcion(Icons.groups_outlined, 'Lista de productores',
             () => ir(const ProductoresScreen())),
-        _Opcion(Icons.support_agent, 'Contáctanos', () => ir(const ContactoScreen())),
+        _Opcion(Icons.support_agent, 'Contáctanos',
+            () => ir(const ContactoScreen())),
       ];
     } else if (sesion.esProductor) {
       opciones = [
@@ -86,11 +87,12 @@ class MenuLateral extends StatelessWidget {
               image: DecorationImage(
                 image: AssetImage(Fotos.campoRuana),
                 fit: BoxFit.cover,
-                colorFilter: ColorFilter.mode(Color(0x99000000), BlendMode.darken),
+                colorFilter:
+                    ColorFilter.mode(Color(0x99000000), BlendMode.darken),
               ),
             ),
             child: Row(children: [
-              const LogoPapacol(tamano: 70, claro: true),
+              const LogoPapacol(tamano: 64, claro: true, conNombre: false),
               const SizedBox(width: 14),
               Expanded(
                 child: Column(
@@ -122,8 +124,8 @@ class MenuLateral extends StatelessWidget {
             const Divider(color: Colors.white24, height: 1),
             _Opcion(Icons.power_settings_new, 'Cerrar sesión', () {
               Navigator.pop(context);
-              cerrarSesion(context);
-            }),
+              cerrarSesion();
+            }, color: TonosIcono.ruana),
           ],
           const SizedBox(height: 8),
         ]),
@@ -154,14 +156,38 @@ class _Opcion extends StatelessWidget {
   final String texto;
   final VoidCallback alPulsar;
   final Widget? extra;
-  const _Opcion(this.icono, this.texto, this.alPulsar, {this.extra});
+  final Color? color;
+  const _Opcion(this.icono, this.texto, this.alPulsar,
+      {this.extra, this.color});
+
+  /// Cada opción tiene su color, para reconocerla sin leer.
+  static const _tonos = {
+    'Perfil': TonosIcono.cielo,
+    'Publicar lote': TonosIcono.cosecha,
+    'Inventario': TonosIcono.tierra,
+    'Catálogo público': TonosIcono.hoja,
+    'Configuraciones': TonosIcono.gris,
+    'Mensajes': TonosIcono.cielo,
+    'Mi cultivo': TonosIcono.hoja,
+    'Asistencia técnica': TonosIcono.papa,
+    'Lista de compradores': TonosIcono.ruana,
+    'Lista de productores': TonosIcono.ruana,
+    'Notificaciones': TonosIcono.cosecha,
+    'Simulador de precios': TonosIcono.papa,
+    'PQRS': TonosIcono.tierra,
+    'Iniciar sesión': TonosIcono.hoja,
+    'Contáctanos': TonosIcono.cielo,
+  };
 
   @override
   Widget build(BuildContext context) => ListTile(
-        leading: Icon(icono, color: Colors.white),
+        leading: IconoIlustrado(icono,
+            color: color ?? _tonos[texto] ?? TonosIcono.hoja, tamano: 38),
         title: Text(texto,
             style: const TextStyle(
-                color: Colors.white, fontSize: 16, fontWeight: FontWeight.w500)),
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.w500)),
         trailing: extra,
         onTap: alPulsar,
       );

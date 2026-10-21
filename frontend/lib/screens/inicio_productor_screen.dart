@@ -13,6 +13,7 @@ import 'cultivo_screens.dart';
 import 'lote_form_screen.dart';
 import 'mensajes_screens.dart';
 import 'mis_lotes_screen.dart';
+import 'navegacion.dart';
 import 'perfil_screens.dart';
 
 /// Panel del campesino vendedor (Mockups, diapositiva 6).
@@ -43,14 +44,15 @@ class _InicioProductorScreenState extends State<InicioProductorScreen> {
     }
   }
 
-  Widget _cuadricula(List<Widget> accesos) => LayoutBuilder(
+  Widget _cuadricula(List<Widget> accesos, {double proporcion = 1.6}) =>
+      LayoutBuilder(
         builder: (context, c) => GridView.count(
           crossAxisCount: c.maxWidth > 600 ? 4 : 2,
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           mainAxisSpacing: 10,
           crossAxisSpacing: 10,
-          childAspectRatio: c.maxWidth > 600 ? 1.05 : 1.6,
+          childAspectRatio: c.maxWidth > 600 ? 1.05 : proporcion,
           children: accesos,
         ),
       );
@@ -86,6 +88,11 @@ class _InicioProductorScreenState extends State<InicioProductorScreen> {
               onPressed: () => _ir(const MensajesScreen()),
             ),
           ),
+          const IconButton(
+            tooltip: 'Cerrar sesión',
+            icon: Icon(Icons.logout),
+            onPressed: cerrarSesion,
+          ),
           const SizedBox(width: 4),
         ],
       ),
@@ -104,34 +111,35 @@ class _InicioProductorScreenState extends State<InicioProductorScreen> {
                 style: TextStyle(color: cs.onSurfaceVariant)),
             const SizedBox(height: 16),
             EncabezadoFoto(
-              ruta: Fotos.cosechaRecoleccion,
+              ruta: Fotos.recoleccionBaldes,
               alto: 150,
               radio: 22,
               child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
-                Expanded(
-                  child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text('Tus publicaciones',
-                            style: TextStyle(color: Colors.white70)),
-                        const SizedBox(height: 4),
-                        Text(
-                            _lotes == null
-                                ? (_errorLotes ? 'Sin conexión' : 'Cargando…')
-                                : '${activos.length} lotes activos',
-                            style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 26,
-                                fontWeight: FontWeight.w800)),
-                        if (_lotes != null)
-                          Text('$bultos bultos · ${pesos(valor)} en oferta',
-                              style: const TextStyle(color: Colors.white)),
-                      ]),
-                ),
-              ]),
-            ),
+                padding: const EdgeInsets.all(20),
+                child:
+                    Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
+                  Expanded(
+                    child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('Tus publicaciones',
+                              style: TextStyle(color: Colors.white70)),
+                          const SizedBox(height: 4),
+                          Text(
+                              _lotes == null
+                                  ? (_errorLotes ? 'Sin conexión' : 'Cargando…')
+                                  : '${activos.length} lotes activos',
+                              style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 26,
+                                  fontWeight: FontWeight.w800)),
+                          if (_lotes != null)
+                            Text('$bultos bultos · ${pesos(valor)} en oferta',
+                                style: const TextStyle(color: Colors.white)),
+                        ]),
+                  ),
+                ]),
+              ),
             ),
             if (_errorLotes)
               TextButton.icon(
@@ -144,40 +152,51 @@ class _InicioProductorScreenState extends State<InicioProductorScreen> {
               TarjetaAcceso(
                   icono: Icons.add_circle_outline,
                   titulo: 'Publicar lote',
+                  foto: Fotos.bultos,
+                  color: TonosIcono.cosecha,
                   alPulsar: () => _ir(const LoteFormScreen())),
               TarjetaAcceso(
                   icono: Icons.inventory_2_outlined,
                   titulo: 'Mi inventario',
+                  foto: Fotos.cosechaAmarilla,
+                  color: TonosIcono.tierra,
                   alPulsar: () => _ir(const MisLotesScreen())),
               TarjetaAcceso(
                   icono: Icons.storefront_outlined,
                   titulo: 'Catálogo público',
+                  foto: Fotos.cosechaRoja,
+                  color: TonosIcono.hoja,
                   alPulsar: () => _ir(const CatalogoScreen())),
               TarjetaAcceso(
                   icono: Icons.person_outline,
                   titulo: 'Mi perfil',
+                  foto: Fotos.campoRuana,
+                  color: TonosIcono.cielo,
                   alPulsar: () => _ir(const PerfilScreen())),
-            ]),
+            ], proporcion: 1.15),
             const SizedBox(height: 20),
-            const TituloSeccion('Próximamente',
-                accion: EtiquetaDemo()),
+            const TituloSeccion('Próximamente', accion: EtiquetaDemo()),
             _cuadricula([
               TarjetaAcceso(
                   icono: Icons.mail_outline,
                   titulo: 'Mensajes',
+                  color: TonosIcono.cielo,
                   insignia: Mensajeria.instancia.noLeidas,
                   alPulsar: () => _ir(const MensajesScreen())),
               TarjetaAcceso(
                   icono: Icons.calendar_month_outlined,
                   titulo: 'Mi cultivo',
+                  color: TonosIcono.hoja,
                   alPulsar: () => _ir(const MiCultivoScreen())),
               TarjetaAcceso(
                   icono: Icons.support_agent,
                   titulo: 'Asistencia técnica',
+                  color: TonosIcono.papa,
                   alPulsar: () => _ir(const AsistenciaTecnicaScreen())),
               TarjetaAcceso(
                   icono: Icons.groups_outlined,
                   titulo: 'Compradores',
+                  color: TonosIcono.ruana,
                   alPulsar: () => _ir(const CompradoresScreen())),
             ]),
             const SizedBox(height: 20),
@@ -186,7 +205,8 @@ class _InicioProductorScreenState extends State<InicioProductorScreen> {
               child: ListTile(
                 contentPadding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                leading: Icon(climaDemo.first.icono, size: 36, color: cs.primary),
+                leading:
+                    Icon(climaDemo.first.icono, size: 36, color: cs.primary),
                 title: Text(
                     '${climaDemo.first.maxima}°C · ${climaDemo.first.estado}',
                     style: const TextStyle(fontWeight: FontWeight.w700)),
