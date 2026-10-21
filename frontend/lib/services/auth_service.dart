@@ -30,8 +30,10 @@ class AuthService {
   }
 
   /// RF-03 — POST /auth/login (200). Devuelve el token y el usuario.
-  Future<(String, Usuario)> iniciarSesion(String correo, String contrasena) async {
-    final r = await _api.post('/auth/login', {'correo': correo, 'contrasena': contrasena});
+  Future<(String, Usuario)> iniciarSesion(
+      String correo, String contrasena) async {
+    final r = await _api
+        .post('/auth/login', {'correo': correo, 'contrasena': contrasena});
     final datos = r['datos'] as Map<String, dynamic>;
     final token = datos['token'].toString();
     _api.establecerToken(token);

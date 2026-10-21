@@ -1,4 +1,5 @@
 /// Modelos de datos del cliente. Reflejan la respuesta JSON de la API.
+library;
 
 class Usuario {
   final int id;
@@ -73,8 +74,9 @@ class Lote {
   bool get estaDisponible => estado == 'DISPONIBLE';
   double get pesoTotalKg => cantidadBultos * pesoBultoKg;
 
-  static double _aDouble(dynamic v) =>
-      v == null ? 0 : (v is num ? v.toDouble() : double.tryParse(v.toString()) ?? 0);
+  static double _aDouble(dynamic v) => v == null
+      ? 0
+      : (v is num ? v.toDouble() : double.tryParse(v.toString()) ?? 0);
 
   factory Lote.desdeJson(Map<String, dynamic> j) => Lote(
         id: j['lote_id'] as int,
@@ -86,7 +88,8 @@ class Lote {
         pesoBultoKg: _aDouble(j['peso_bulto_kg']),
         precioBulto: _aDouble(j['precio_bulto']),
         fechaCosecha: j['fecha_cosecha']?.toString().split('T').first ?? '',
-        fechaPublicacion: j['fecha_publicacion']?.toString().split('T').first ?? '',
+        fechaPublicacion:
+            j['fecha_publicacion']?.toString().split('T').first ?? '',
         estado: j['estado']?.toString() ?? '',
         descripcion: j['descripcion']?.toString(),
         productorId: j['productor_id'] as int? ?? 0,
@@ -108,13 +111,17 @@ class Referencias {
   final List<OpcionReferencia> variedades;
   final List<OpcionReferencia> calibres;
 
-  Referencias({required this.municipios, required this.variedades, required this.calibres});
+  Referencias(
+      {required this.municipios,
+      required this.variedades,
+      required this.calibres});
 
   factory Referencias.desdeJson(Map<String, dynamic> j) {
-    List<OpcionReferencia> mapear(String clave, String campoId) =>
-        (j[clave] as List? ?? [])
-            .map((e) => OpcionReferencia(e[campoId] as int, e['nombre'].toString()))
-            .toList();
+    List<OpcionReferencia> mapear(String clave, String campoId) => (j[clave]
+                as List? ??
+            [])
+        .map((e) => OpcionReferencia(e[campoId] as int, e['nombre'].toString()))
+        .toList();
     return Referencias(
       municipios: mapear('municipios', 'municipio_id'),
       variedades: mapear('variedades', 'variedad_id'),

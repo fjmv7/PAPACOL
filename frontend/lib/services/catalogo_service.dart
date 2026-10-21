@@ -35,7 +35,9 @@ class CatalogoService {
     final r = await _api.get('/catalogo', consulta: consulta);
     final p = r['paginacion'] as Map<String, dynamic>;
     return ResultadoCatalogo(
-      (r['lotes'] as List).map((e) => Lote.desdeJson(e as Map<String, dynamic>)).toList(),
+      (r['lotes'] as List)
+          .map((e) => Lote.desdeJson(e as Map<String, dynamic>))
+          .toList(),
       p['total'] as int,
       p['pagina'] as int,
       p['totalPaginas'] as int,
