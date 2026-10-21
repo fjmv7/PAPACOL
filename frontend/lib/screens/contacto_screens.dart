@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import '../data/demo.dart';
 import '../state/sesion.dart';
+import '../utils/validadores.dart';
 import '../widgets/comunes.dart';
 
 String _radicado(String prefijo) =>
@@ -77,8 +78,8 @@ class _ContactoScreenState extends State<ContactoScreen> {
                   'Primer nombre',
                   TextFormField(
                     controller: _nombre,
-                    validator: (v) =>
-                        (v == null || v.trim().isEmpty) ? 'Requerido' : null,
+                    inputFormatters: Formatos.soloLetras,
+                    validator: (v) => Validar.nombre(v, campo: 'tu nombre'),
                   ),
                 ),
               ),
@@ -88,8 +89,8 @@ class _ContactoScreenState extends State<ContactoScreen> {
                   'Apellido',
                   TextFormField(
                     controller: _apellido,
-                    validator: (v) =>
-                        (v == null || v.trim().isEmpty) ? 'Requerido' : null,
+                    inputFormatters: Formatos.soloLetras,
+                    validator: (v) => Validar.nombre(v, campo: 'tu apellido'),
                   ),
                 ),
               ),
@@ -99,9 +100,8 @@ class _ContactoScreenState extends State<ContactoScreen> {
               TextFormField(
                 controller: _correo,
                 keyboardType: TextInputType.emailAddress,
-                validator: (v) => (v == null || !v.contains('@'))
-                    ? 'Ingresa un correo válido'
-                    : null,
+                inputFormatters: Formatos.sinEspacios,
+                validator: Validar.correo,
               ),
             ),
             CampoEtiquetado(

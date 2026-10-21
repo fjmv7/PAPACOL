@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/modelos.dart';
 import '../state/preferencias.dart';
 import '../utils/formato.dart';
+import 'fotos.dart';
 
 /// Color de acento por variedad, para la miniatura de la tarjeta.
 Color colorVariedad(String variedad) {
@@ -20,18 +21,12 @@ class MiniaturaLote extends StatelessWidget {
   const MiniaturaLote(this.variedad, {super.key, this.tamano = 64});
 
   @override
-  Widget build(BuildContext context) {
-    final c = colorVariedad(variedad);
-    return Container(
-      width: tamano,
-      height: tamano,
-      decoration: BoxDecoration(
-        color: c.withValues(alpha: 0.16),
-        borderRadius: BorderRadius.circular(tamano * 0.25),
-      ),
-      child: Icon(Icons.spa_rounded, color: c, size: tamano * 0.5),
-    );
-  }
+  Widget build(BuildContext context) => FotoRedondeada(
+        Fotos.porVariedad(variedad),
+        ancho: tamano,
+        alto: tamano,
+        radio: tamano * 0.25,
+      );
 }
 
 class ChipEstado extends StatelessWidget {

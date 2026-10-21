@@ -4,7 +4,9 @@ import '../models/modelos.dart';
 import '../services/auth_service.dart';
 import '../services/catalogo_service.dart';
 import '../utils/formato.dart';
+import '../utils/validadores.dart';
 import '../widgets/comunes.dart';
+import '../widgets/fotos.dart';
 import '../widgets/lote_card.dart';
 import 'catalogo_screen.dart';
 import 'contacto_screens.dart';
@@ -87,11 +89,11 @@ class _TarjetaVariedad extends StatelessWidget {
         child: InkWell(
           onTap: () => abrir(context, VariedadScreen(ficha: f)),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Container(
+            SizedBox(
               height: 96,
               width: double.infinity,
-              color: f.color.withValues(alpha: 0.16),
-              child: Icon(Icons.spa_rounded, size: 52, color: f.color),
+              child: Image.asset(Fotos.porVariedad(f.claveBusqueda),
+                  fit: BoxFit.cover),
             ),
             Padding(
               padding: const EdgeInsets.all(12),
@@ -128,13 +130,10 @@ class VariedadScreen extends StatelessWidget {
       body: Centrado(
         ancho: 640,
         child: ListView(padding: const EdgeInsets.all(20), children: [
-          Container(
-            height: 180,
-            decoration: BoxDecoration(
-              color: ficha.color.withValues(alpha: 0.16),
-              borderRadius: BorderRadius.circular(24),
-            ),
-            child: Icon(Icons.spa_rounded, size: 96, color: ficha.color),
+          EncabezadoFoto(
+            ruta: Fotos.porVariedad(ficha.claveBusqueda),
+            alto: 200,
+            child: const SizedBox.shrink(),
           ),
           const SizedBox(height: 20),
           Text(ficha.nombre,
@@ -312,9 +311,10 @@ class _ProductorPerfilScreenState extends State<ProductorPerfilScreen> {
               ]),
               const SizedBox(height: 18),
               OutlinedButton.icon(
-                onPressed: () => mostrarContacto(context, p.lotes.first),
+                onPressed: () =>
+                    abrir(context, LoteDetalleScreen(loteId: p.lotes.first.id)),
                 icon: const Icon(Icons.chat_bubble_outline),
-                label: const Text('Contactar'),
+                label: const Text('Ver contacto en su lote'),
               ),
               const SizedBox(height: 20),
               const TituloSeccion('Lotes disponibles'),
@@ -453,7 +453,7 @@ class _SimuladorPreciosScreenState extends State<SimuladorPreciosScreen> {
         .where((l) => l.pesoBultoKg > 0)
         .map((l) => l.precioBulto / l.pesoBultoKg)
         .toList();
-    final cantidad = double.tryParse(_cantidad.text.replaceAll(',', '.')) ?? 0;
+    final cantidad = leerDecimal(_cantidad.text) ?? 0;
     final kg = cantidad * _kgPorUnidad;
     final promedio = preciosKg.isEmpty
         ? 0.0
@@ -488,6 +488,7 @@ class _SimuladorPreciosScreenState extends State<SimuladorPreciosScreen> {
         TextField(
           controller: _cantidad,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          inputFormatters: Formatos.decimal,
           decoration: InputDecoration(
               suffixText: _kgPorUnidad == 50 ? 'bultos' : 'arrobas'),
         ),

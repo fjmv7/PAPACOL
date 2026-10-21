@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import '../utils/formato.dart';
+import '../utils/validadores.dart';
 import '../widgets/comunes.dart';
 import '../models/modelos.dart';
 import '../services/lote_service.dart';
@@ -41,7 +41,9 @@ class _LoteFormScreenState extends State<LoteFormScreen> {
     final l = widget.lote;
     if (l != null) {
       _cantidad.text = '${l.cantidadBultos}';
-      _peso.text = l.pesoBultoKg.toStringAsFixed(0);
+      _peso.text = l.pesoBultoKg % 1 == 0
+          ? l.pesoBultoKg.toStringAsFixed(0)
+          : '${l.pesoBultoKg}';
       _precio.text = l.precioBulto.toStringAsFixed(0);
       _descripcion.text = l.descripcion ?? '';
       _variedadId = l.variedadId;
@@ -81,8 +83,8 @@ class _LoteFormScreenState extends State<LoteFormScreen> {
           'variedadId': _variedadId,
           'calibreId': _calibreId,
           'cantidadBultos': int.parse(_cantidad.text),
-          'pesoBultoKg': double.parse(_peso.text),
-          'precioBulto': double.parse(_precio.text),
+          'pesoBultoKg': leerDecimal(_peso.text)!,
+          'precioBulto': leerDecimal(_precio.text)!,
           'fechaCosecha': fecha,
           'descripcion': _descripcion.text.trim().isEmpty
               ? null
@@ -93,8 +95,8 @@ class _LoteFormScreenState extends State<LoteFormScreen> {
           variedadId: _variedadId!,
           calibreId: _calibreId!,
           cantidadBultos: int.parse(_cantidad.text),
-          pesoBultoKg: double.parse(_peso.text),
-          precioBulto: double.parse(_precio.text),
+          pesoBultoKg: leerDecimal(_peso.text)!,
+          precioBulto: leerDecimal(_precio.text)!,
           fechaCosecha: fecha,
           descripcion: _descripcion.text.trim().isEmpty
               ? null
@@ -120,8 +122,8 @@ class _LoteFormScreenState extends State<LoteFormScreen> {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final total = (double.tryParse(_cantidad.text) ?? 0) *
-        (double.tryParse(_precio.text) ?? 0);
+    final total =
+        (leerDecimal(_cantidad.text) ?? 0) * (leerDecimal(_precio.text) ?? 0);
     return Scaffold(
       appBar: AppBar(title: Text(_esEdicion ? 'Editar lote' : 'Publicar lote')),
       body: Centrado(
@@ -169,9 +171,12 @@ class _LoteFormScreenState extends State<LoteFormScreen> {
               ),
             ],
             Row(children: [
-              Expanded(child: _numero(_cantidad, 'Cantidad disponible', 'bultos')),
+              Expanded(
+                  child: _numero(_cantidad, 'Cantidad disponible', 'bultos',
+                      entero: true)),
               const SizedBox(width: 12),
-              Expanded(child: _numero(_peso, 'Peso por bulto', 'kg')),
+              Expanded(
+                  child: _numero(_peso, 'Peso por bulto', 'kg', decimales: true)),
             ]),
             _numero(_precio, 'Precio por bulto', 'COP'),
             CampoEtiquetado(
@@ -227,21 +232,18 @@ class _LoteFormScreenState extends State<LoteFormScreen> {
     );
   }
 
-  Widget _numero(TextEditingController c, String etiqueta, String sufijo) {
+  /// [decimales] solo para el peso; cantidad y precio son enteros (RN-04).
+  Widget _numero(TextEditingController c, String etiqueta, String sufijo,
+      {bool decimales = false, bool entero = false}) {
     return CampoEtiquetado(
       etiqueta,
       TextFormField(
         controller: c,
-        keyboardType: TextInputType.number,
-        inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.]'))],
+        keyboardType: TextInputType.numberWithOptions(decimal: decimales),
+        inputFormatters: decimales ? Formatos.decimal : Formatos.soloDigitos,
         decoration: InputDecoration(suffixText: sufijo),
         onChanged: (_) => setState(() {}),
-        validator: (v) {
-          final n = double.tryParse(v ?? '');
-          if (n == null) return 'Ingresa un número';
-          if (n <= 0) return 'Debe ser mayor que cero'; // RN-04
-          return null;
-        },
+        validator: entero ? Validar.enteroPositivo : Validar.decimalPositivo,
       ),
     );
   }

@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import '../services/api_client.dart';
 import '../state/preferencias.dart';
 import '../state/sesion.dart';
+import '../utils/validadores.dart';
 import '../widgets/comunes.dart';
+import '../widgets/fotos.dart';
 import 'contrasena_screens.dart';
 import 'navegacion.dart';
 import 'registro_screen.dart';
@@ -10,7 +12,14 @@ import 'registro_screen.dart';
 /// CFV-01 — Inicio de sesión (Mockups diapositiva 4; Canva página 3).
 class LoginScreen extends StatefulWidget {
   final String rolSugerido;
-  const LoginScreen({super.key, this.rolSugerido = 'COMPRADOR'});
+
+  /// true cuando se abre desde otra pantalla (por ejemplo el detalle de un
+  /// lote): al iniciar sesión vuelve allí en lugar de ir al inicio.
+  final bool volverAlTerminar;
+  const LoginScreen(
+      {super.key,
+      this.rolSugerido = 'COMPRADOR',
+      this.volverAlTerminar = false});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -53,7 +62,12 @@ class _LoginScreenState extends State<LoginScreen> {
       final correo = _correo.text.trim();
       await Sesion.instancia.iniciarSesion(correo, _contrasena.text);
       Preferencias.instancia.recordarCorreo(_recordar ? correo : null);
-      if (mounted) irAInicio(context);
+      if (!mounted) return;
+      if (widget.volverAlTerminar) {
+        Navigator.pop(context, true);
+      } else {
+        irAInicio(context);
+      }
     } on ApiExcepcion catch (e) {
       if (!mounted) return;
       if (e.codigoHttp == 403) {
@@ -90,7 +104,12 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      const Center(child: LogoPapacol(tamano: 80)),
+                      const EncabezadoFoto(
+                        ruta: Fotos.campoSurcos,
+                        alto: 190,
+                        child: Center(
+                            child: LogoPapacol(tamano: 160, claro: true)),
+                      ),
                       const SizedBox(height: 20),
                       Text('¡Hola! Bienvenido',
                           textAlign: TextAlign.center,
@@ -113,19 +132,12 @@ class _LoginScreenState extends State<LoginScreen> {
                           keyboardType: TextInputType.emailAddress,
                           autofillHints: const [AutofillHints.email],
                           textInputAction: TextInputAction.next,
+                          inputFormatters: Formatos.sinEspacios,
                           decoration: const InputDecoration(
                             hintText: 'nombre@correo.com',
                             prefixIcon: Icon(Icons.person_outline),
                           ),
-                          validator: (v) {
-                            if (v == null || v.trim().isEmpty) {
-                              return 'Ingresa tu correo electrónico';
-                            }
-                            if (!v.contains('@') || !v.contains('.')) {
-                              return 'Ingresa un correo válido';
-                            }
-                            return null;
-                          },
+                          validator: Validar.correo,
                         ),
                       ),
                       CampoEtiquetado(
@@ -163,14 +175,21 @@ class _LoginScreenState extends State<LoginScreen> {
                           onTap: () => setState(() => _recordar = !_recordar),
                           child: const Text('Recordar'),
                         ),
-                        const Spacer(),
-                        TextButton(
-                          onPressed: () => Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (_) =>
-                                      const RecuperarContrasenaScreen())),
-                          child: const Text('¿Olvidó su contraseña?'),
+                        // Flexible: en teléfonos angostos el enlace pasa a
+                        // dos líneas en lugar de desbordar la fila.
+                        Expanded(
+                          child: Align(
+                            alignment: Alignment.centerRight,
+                            child: TextButton(
+                              onPressed: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (_) =>
+                                          const RecuperarContrasenaScreen())),
+                              child: const Text('¿Olvidó su contraseña?',
+                                  textAlign: TextAlign.end),
+                            ),
+                          ),
                         ),
                       ]),
                       if (_error != null) ...[
@@ -189,21 +208,25 @@ class _LoginScreenState extends State<LoginScreen> {
                             : const Text('Iniciar sesión'),
                       ),
                       const SizedBox(height: 18),
-                      Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                        Text('¿No tienes cuenta?',
-                            style: TextStyle(color: cs.onSurfaceVariant)),
-                        TextButton(
-                          onPressed: _enviando
-                              ? null
-                              : () => Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (_) => RegistroScreen(
-                                          rolInicial: widget.rolSugerido))),
-                          child: const Text('Regístrate',
-                              style: TextStyle(fontWeight: FontWeight.w700)),
-                        ),
-                      ]),
+                      Wrap(
+                          alignment: WrapAlignment.center,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: [
+                            Text('¿No tienes cuenta?',
+                                style: TextStyle(color: cs.onSurfaceVariant)),
+                            TextButton(
+                              onPressed: _enviando
+                                  ? null
+                                  : () => Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (_) => RegistroScreen(
+                                              rolInicial: widget.rolSugerido))),
+                              child: const Text('Regístrate',
+                                  style:
+                                      TextStyle(fontWeight: FontWeight.w700)),
+                            ),
+                          ]),
                     ],
                   ),
                 ),

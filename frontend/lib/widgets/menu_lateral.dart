@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../screens/catalogo_screen.dart';
 import '../screens/contacto_screens.dart';
 import '../screens/cultivo_screens.dart';
 import '../screens/explorar_screens.dart';
@@ -12,6 +13,7 @@ import '../state/mensajes.dart';
 import '../state/sesion.dart';
 import '../theme/tema.dart';
 import 'comunes.dart';
+import 'fotos.dart';
 
 /// Menú lateral por rol (Canva, páginas 8 y 12).
 class MenuLateral extends StatelessWidget {
@@ -44,6 +46,11 @@ class MenuLateral extends StatelessWidget {
             () => ir(const LoteFormScreen())),
         _Opcion(Icons.inventory_2_outlined, 'Inventario',
             () => ir(const MisLotesScreen())),
+        _Opcion(Icons.storefront_outlined, 'Catálogo público',
+            () => ir(const CatalogoScreen())),
+        _Opcion(Icons.settings_outlined, 'Configuraciones',
+            () => ir(const AjustesCuentaScreen())),
+        const _Seccion(),
         _OpcionMensajes(() => ir(const MensajesScreen())),
         _Opcion(Icons.calendar_month_outlined, 'Mi cultivo',
             () => ir(const MiCultivoScreen())),
@@ -51,22 +58,21 @@ class MenuLateral extends StatelessWidget {
             () => ir(const AsistenciaTecnicaScreen())),
         _Opcion(Icons.groups_outlined, 'Lista de compradores',
             () => ir(const CompradoresScreen())),
-        _Opcion(Icons.settings_outlined, 'Configuraciones',
-            () => ir(const AjustesCuentaScreen())),
       ];
     } else {
       opciones = [
         _Opcion(Icons.person_outline, 'Perfil', () => ir(const PerfilScreen())),
+        _Opcion(Icons.groups_outlined, 'Lista de productores',
+            () => ir(const ProductoresScreen())),
+        _Opcion(Icons.settings_outlined, 'Configuraciones',
+            () => ir(const AjustesCuentaScreen())),
+        const _Seccion(),
         _Opcion(Icons.notifications_none, 'Notificaciones',
             () => ir(const NotificacionesScreen())),
         _OpcionMensajes(() => ir(const MensajesScreen())),
-        _Opcion(Icons.groups_outlined, 'Lista de productores',
-            () => ir(const ProductoresScreen())),
         _Opcion(Icons.calculate_outlined, 'Simulador de precios',
             () => ir(const SimuladorPreciosScreen())),
         _Opcion(Icons.feedback_outlined, 'PQRS', () => ir(const PqrsScreen())),
-        _Opcion(Icons.settings_outlined, 'Configuraciones',
-            () => ir(const AjustesCuentaScreen())),
       ];
     }
 
@@ -74,10 +80,17 @@ class MenuLateral extends StatelessWidget {
       backgroundColor: Paleta.verdeCampo,
       child: SafeArea(
         child: Column(children: [
-          Padding(
+          Container(
             padding: const EdgeInsets.fromLTRB(20, 24, 20, 16),
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage(Fotos.campoRuana),
+                fit: BoxFit.cover,
+                colorFilter: ColorFilter.mode(Color(0x99000000), BlendMode.darken),
+              ),
+            ),
             child: Row(children: [
-              const LogoPapacol(tamano: 54, claro: true),
+              const LogoPapacol(tamano: 70, claro: true),
               const SizedBox(width: 14),
               Expanded(
                 child: Column(
@@ -117,6 +130,23 @@ class MenuLateral extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Separa las funciones del alcance de Quinto (RF-01 a RF-10) de las
+/// pantallas del prototipo que se muestran como demostración.
+class _Seccion extends StatelessWidget {
+  const _Seccion();
+
+  @override
+  Widget build(BuildContext context) => const Padding(
+        padding: EdgeInsets.fromLTRB(20, 18, 20, 6),
+        child: Text('PRÓXIMAMENTE · DEMOSTRACIÓN',
+            style: TextStyle(
+                color: Paleta.cosecha,
+                fontSize: 12,
+                letterSpacing: 1,
+                fontWeight: FontWeight.w700)),
+      );
 }
 
 class _Opcion extends StatelessWidget {
