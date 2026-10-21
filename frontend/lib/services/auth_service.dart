@@ -46,6 +46,12 @@ class AuthService {
     return Usuario.desdeJson(r['datos'] as Map<String, dynamic>);
   }
 
+  /// PUT /auth/contrasena (200). Exige la contraseña actual.
+  Future<void> cambiarContrasena(String actual, String nueva) async {
+    await _api.put('/auth/contrasena',
+        {'contrasenaActual': actual, 'contrasenaNueva': nueva});
+  }
+
   void cerrarSesion() => _api.establecerToken(null);
 
   /// GET /referencias — alimenta los desplegables de los formularios.

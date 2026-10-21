@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../models/modelos.dart';
 import '../services/api_client.dart';
 import '../services/lote_service.dart';
+import '../utils/formato.dart';
+import '../widgets/comunes.dart';
 import '../widgets/lote_card.dart';
 import 'lote_form_screen.dart';
 
@@ -15,8 +17,6 @@ class MisLotesScreen extends StatefulWidget {
 
 class _MisLotesScreenState extends State<MisLotesScreen> {
   final LoteService _servicio = LoteService();
-
-  static const verde = Color(0xFF276749);
 
   List<Lote> _lotes = [];
   bool _cargando = true;
@@ -105,7 +105,7 @@ class _MisLotesScreenState extends State<MisLotesScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Mis lotes'),
+        title: const Text('Mi inventario'),
         actions: [
           IconButton(
             tooltip: 'Actualizar',
@@ -128,82 +128,80 @@ class _MisLotesScreenState extends State<MisLotesScreen> {
 
   Widget _construirCuerpo() {
     if (_cargando) return const Center(child: CircularProgressIndicator());
-
     if (_error != null) {
-      return ListView(
-        children: [
-          const SizedBox(height: 100),
-          const Icon(Icons.cloud_off, size: 54),
-          Padding(
-            padding: const EdgeInsets.all(20),
-            child: Text(_error!, textAlign: TextAlign.center),
-          ),
-          Center(
-            child: FilledButton(
-              onPressed: _cargarLotes,
-              child: const Text('Reintentar'),
-            ),
-          ),
-        ],
-      );
+      return EstadoError(mensaje: _error!, alReintentar: _cargarLotes);
     }
-
     if (_lotes.isEmpty) {
-      return ListView(
-        padding: const EdgeInsets.all(24),
-        children: const [
-          SizedBox(height: 80),
-          Icon(Icons.agriculture_outlined, size: 64, color: verde),
-          SizedBox(height: 16),
-          Text(
-            'Todavía no tienes lotes publicados',
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),
-          ),
-          SizedBox(height: 8),
-          Text(
-            'Pulsa «Publicar lote» para agregar tu oferta de papa.',
-            textAlign: TextAlign.center,
-          ),
-        ],
+      return EstadoVacio(
+        icono: Icons.agriculture_outlined,
+        titulo: 'Todavía no tienes lotes publicados',
+        detalle: 'Pulsa «Publicar lote» para agregar tu oferta de papa.',
+        accion: FilledButton(
+            onPressed: () => _abrirFormulario(),
+            child: const Text('Publicar lote')),
       );
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.only(top: 8, bottom: 100),
-      itemCount: _lotes.length,
-      itemBuilder: (_, i) {
-        final lote = _lotes[i];
-        final activo = lote.estado != 'RETIRADO';
-        return Column(
-          children: [
-            LoteCard(lote: lote, mostrarEstado: true),
-            if (activo)
-              Padding(
-                padding: const EdgeInsets.only(right: 16, bottom: 4),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    TextButton.icon(
-                      style: TextButton.styleFrom(foregroundColor: verde),
-                      onPressed: () => _abrirFormulario(lote: lote),
-                      icon: const Icon(Icons.edit_outlined, size: 18),
-                      label: const Text('Editar'),
-                    ),
-                    TextButton.icon(
-                      style: TextButton.styleFrom(
-                        foregroundColor: Colors.red.shade700,
-                      ),
-                      onPressed: () => _retirar(lote),
-                      icon: const Icon(Icons.remove_circle_outline, size: 18),
-                      label: const Text('Retirar'),
-                    ),
-                  ],
-                ),
+    final cs = Theme.of(context).colorScheme;
+    final disponibles = _lotes.where((l) => l.estaDisponible).toList();
+    final bultos = disponibles.fold<int>(0, (s, l) => s + l.cantidadBultos);
+    final kg = disponibles.fold<double>(0, (s, l) => s + l.pesoTotalKg);
+
+    return Centrado(
+      child: ListView(
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: cs.primaryContainer.withValues(alpha: 0.45),
+              borderRadius: BorderRadius.circular(18),
+            ),
+            child: Row(children: [
+              _resumen('${disponibles.length}', 'Disponibles'),
+              _resumen('$bultos', 'Bultos'),
+              _resumen(miles(kg), 'Kg en oferta'),
+            ]),
+          ),
+          const SizedBox(height: 16),
+          for (final lote in _lotes)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: LoteCard(
+                lote: lote,
+                mostrarEstado: true,
+                pie: lote.estado == 'RETIRADO'
+                    ? null
+                    : Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+                        TextButton.icon(
+                          onPressed: () => _abrirFormulario(lote: lote),
+                          icon: const Icon(Icons.edit_outlined, size: 18),
+                          label: const Text('Editar'),
+                        ),
+                        TextButton.icon(
+                          style: TextButton.styleFrom(foregroundColor: cs.error),
+                          onPressed: () => _retirar(lote),
+                          icon: const Icon(Icons.remove_circle_outline, size: 18),
+                          label: const Text('Retirar'),
+                        ),
+                        const SizedBox(width: 8),
+                      ]),
               ),
-          ],
-        );
-      },
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _resumen(String valor, String etiqueta) {
+    final cs = Theme.of(context).colorScheme;
+    return Expanded(
+      child: Column(children: [
+        Text(valor,
+            style: TextStyle(
+                fontSize: 22, fontWeight: FontWeight.w800, color: cs.primary)),
+        Text(etiqueta, style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant)),
+      ]),
     );
   }
 }

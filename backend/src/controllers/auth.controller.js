@@ -26,4 +26,12 @@ async function perfil(req, res, next) {
   } catch (error) { next(error); }
 }
 
-module.exports = { registrar, iniciarSesion, perfil };
+async function cambiarContrasena(req, res, next) {
+  try {
+    const { contrasenaActual, contrasenaNueva } = req.body;
+    await authService.cambiarContrasena(req.usuario.id, contrasenaActual, contrasenaNueva);
+    res.status(200).json({ exito: true, mensaje: 'Contrasena actualizada correctamente.' });
+  } catch (error) { next(error); }
+}
+
+module.exports = { registrar, iniciarSesion, perfil, cambiarContrasena };

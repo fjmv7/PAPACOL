@@ -8,5 +8,6 @@ const router = express.Router();
 router.post('/registro', controlador.registrar);      // RF-01, RF-02
 router.post('/login', controlador.iniciarSesion);     // RF-03
 router.get('/perfil', requiereAutenticacion, controlador.perfil);
+router.put('/contrasena', requiereAutenticacion, controlador.cambiarContrasena);
 
 module.exports = router;
