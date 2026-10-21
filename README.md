@@ -206,16 +206,17 @@ flutter run -d chrome
 
 ## 5. Datos de prueba
 
-`database/seed.sql` carga cuatro usuarios de prueba. Las contraseñas son **exclusivamente para el entorno local**:
+`database/seed.sql` carga cinco usuarios de prueba. Las contraseñas son **exclusivamente para el entorno local**:
 
 | Correo | Rol | Contraseña |
 |---|---|---|
 | jose.rodriguez@pruebas.papacol.local | PRODUCTOR | `Productor.2026` |
 | marta.sanchez@pruebas.papacol.local | PRODUCTOR | `Productor.2026` |
+| rosa.pulido@pruebas.papacol.local | PRODUCTOR | `Prueba.2026` |
 | carlos.beltran@pruebas.papacol.local | COMPRADOR | `Comprador.2026` |
 | luisa.moreno@pruebas.papacol.local | COMPRADOR | `Comprador.2026` |
 
-También carga 5 lotes: 3 disponibles, 1 reservado y 1 retirado, para poder verificar que el filtro del catálogo público solo muestra los disponibles.
+También carga 6 lotes: 4 disponibles, 1 reservado y 1 retirado, para poder verificar que el filtro del catálogo público solo muestra los disponibles. La cuenta de Rosa Pulido y su lote de Criolla son los de la demostración de la Entrega 2, así la demo de las diapositivas se puede repetir.
 
 ⚠️ Estas credenciales **no son de producción**. El archivo `.env`, que sí contiene secretos reales, está en `.gitignore` y nunca se versiona (RNF-14).
 
