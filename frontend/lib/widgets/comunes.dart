@@ -392,14 +392,18 @@ class TarjetaAcceso extends StatelessWidget {
                     const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
                 child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       icono,
                       const SizedBox(height: 8),
-                      Text(titulo,
-                          textAlign: TextAlign.center,
-                          maxLines: 2,
-                          style: const TextStyle(
-                              fontSize: 13, fontWeight: FontWeight.w600)),
+                      Flexible(
+                        child: Text(titulo,
+                            textAlign: TextAlign.center,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                                fontSize: 13, fontWeight: FontWeight.w600)),
+                      ),
                     ]),
               )
             : Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [

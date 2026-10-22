@@ -44,18 +44,26 @@ class _InicioProductorScreenState extends State<InicioProductorScreen> {
     }
   }
 
-  Widget _cuadricula(List<Widget> accesos, {double proporcion = 1.6}) =>
-      LayoutBuilder(
-        builder: (context, c) => GridView.count(
-          crossAxisCount: c.maxWidth > 600 ? 4 : 2,
+  /// Cuadrícula de accesos. La altura de cada tarjeta crece con el tamaño
+  /// de letra del celular (en el A15 del equipo la letra va al 130 %), así
+  /// el texto nunca se sale de la tarjeta.
+  Widget _cuadricula(List<Widget> accesos, {bool conFoto = false}) =>
+      LayoutBuilder(builder: (context, c) {
+        final letra = MediaQuery.textScalerOf(context).scale(1);
+        final alto = conFoto ? 118 + 30 * letra : 86 + 36 * letra;
+        return GridView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          mainAxisSpacing: 10,
-          crossAxisSpacing: 10,
-          childAspectRatio: c.maxWidth > 600 ? 1.05 : proporcion,
-          children: accesos,
-        ),
-      );
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: c.maxWidth > 600 ? 4 : 2,
+            mainAxisSpacing: 10,
+            crossAxisSpacing: 10,
+            mainAxisExtent: alto,
+          ),
+          itemCount: accesos.length,
+          itemBuilder: (_, i) => accesos[i],
+        );
+      });
 
   Future<void> _ir(Widget pantalla) async {
     await Navigator.push(context, MaterialPageRoute(builder: (_) => pantalla));
@@ -173,7 +181,7 @@ class _InicioProductorScreenState extends State<InicioProductorScreen> {
                   foto: Fotos.campoRuana,
                   color: TonosIcono.cielo,
                   alPulsar: () => _ir(const PerfilScreen())),
-            ], proporcion: 1.15),
+            ], conFoto: true),
             const SizedBox(height: 20),
             const TituloSeccion('Próximamente', accion: EtiquetaDemo()),
             _cuadricula([

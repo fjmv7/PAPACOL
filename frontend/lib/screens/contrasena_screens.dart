@@ -96,8 +96,9 @@ class _CambiarContrasenaScreenState extends State<CambiarContrasenaScreen> {
               ),
             const SizedBox(height: 16),
             _CampoClave(_actual, 'Contraseña actual',
-                validador: (v) =>
-                    (v == null || v.isEmpty) ? 'Ingresa tu contraseña actual' : null),
+                validador: (v) => (v == null || v.isEmpty)
+                    ? 'Ingresa tu contraseña actual'
+                    : null),
             _CampoClave(_nueva, 'Nueva contraseña', validador: _validarNueva),
             _CampoClave(_confirmar, 'Confirmar contraseña',
                 validador: (v) =>
@@ -218,7 +219,8 @@ class _RecuperarContrasenaScreenState extends State<RecuperarContrasenaScreen> {
                   inputFormatters: Formatos.soloDigitos,
                   maxLength: 6,
                   decoration: const InputDecoration(
-                      hintText: '6 dígitos', prefixIcon: Icon(Icons.pin_outlined)),
+                      hintText: '6 dígitos',
+                      prefixIcon: Icon(Icons.pin_outlined)),
                   validator: Validar.codigo,
                 ),
               ),
@@ -258,8 +260,8 @@ class UsuarioBloqueadoScreen extends StatelessWidget {
               CircleAvatar(
                 radius: 44,
                 backgroundColor: cs.errorContainer,
-                child: Icon(Icons.lock_person_outlined,
-                    size: 46, color: cs.error),
+                child:
+                    Icon(Icons.lock_person_outlined, size: 46, color: cs.error),
               ),
               const SizedBox(height: 20),
               const Text('Usuario bloqueado',
@@ -272,10 +274,8 @@ class UsuarioBloqueadoScreen extends StatelessWidget {
                   style: TextStyle(color: cs.onSurfaceVariant, height: 1.4)),
               const SizedBox(height: 24),
               FilledButton.icon(
-                onPressed: () => Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                        builder: (_) => const ContactoScreen())),
+                onPressed: () => Navigator.pushReplacement(context,
+                    MaterialPageRoute(builder: (_) => const ContactoScreen())),
                 icon: const Icon(Icons.support_agent),
                 label: const Text('Visita nuestro centro de ayuda'),
               ),
