@@ -27,6 +27,7 @@ Future<void> cerrarSesion([BuildContext? _]) async {
   final confirmar = await showDialog<bool>(
     context: contexto,
     builder: (d) => AlertDialog(
+      scrollable: true,
       icon: const Icon(Icons.logout),
       title: const Text('Cerrar sesión'),
       content: const Text('¿Deseas salir de tu cuenta en este dispositivo?'),

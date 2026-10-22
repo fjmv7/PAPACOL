@@ -339,9 +339,8 @@ Future<void> mostrarContacto(BuildContext context, Lote l) async {
     }
   }
 
-  await showModalBottomSheet<void>(
+  await mostrarHoja<void>(
     context: context,
-    showDragHandle: true,
     builder: (hoja) => SafeArea(
       child: Column(mainAxisSize: MainAxisSize.min, children: [
         ListTile(

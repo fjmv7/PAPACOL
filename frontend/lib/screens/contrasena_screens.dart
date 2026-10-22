@@ -153,6 +153,7 @@ class _RecuperarContrasenaScreenState extends State<RecuperarContrasenaScreen> {
     showDialog<void>(
       context: context,
       builder: (d) => AlertDialog(
+        scrollable: true,
         icon: const Icon(Icons.check_circle_outline, size: 40),
         title: const Text('Contraseña recuperada'),
         content: const Text(

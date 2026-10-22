@@ -8,11 +8,14 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:papacol/data/demo.dart';
 import 'package:papacol/screens/bienvenida_screen.dart';
+import 'package:papacol/screens/catalogo_screen.dart';
+import 'package:papacol/widgets/comunes.dart';
 import 'package:papacol/screens/contacto_screens.dart';
 import 'package:papacol/screens/contrasena_screens.dart';
 import 'package:papacol/screens/cultivo_screens.dart';
 import 'package:papacol/screens/explorar_screens.dart';
 import 'package:papacol/screens/mensajes_screens.dart';
+import 'package:papacol/screens/navegacion.dart';
 import 'package:papacol/screens/perfil_screens.dart';
 import 'package:papacol/state/mensajes.dart';
 import 'package:papacol/screens/inicio_comprador_screen.dart';
@@ -28,9 +31,22 @@ import 'package:papacol/theme/tema.dart';
 import 'apoyo.dart';
 
 /// Celular del equipo: 1080 × 2340 px a densidad 3 y letra al 130 %.
+/// En true se prueba la ventana del PC en lugar del celular.
+var enPC = false;
+
 void celular(WidgetTester tester) {
+  if (enPC) {
+    tester.view.physicalSize = const Size(1280, 800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    return;
+  }
   tester.view.physicalSize = const Size(1080, 2340);
   tester.view.devicePixelRatio = 3;
+  // Barras del sistema de Android: arriba la de estado y abajo la de
+  // navegación. Le quitan espacio a las hojas y a las pantallas.
+  tester.view.padding = const FakeViewPadding(top: 32 * 3, bottom: 48 * 3);
+  tester.view.viewPadding = const FakeViewPadding(top: 32 * 3, bottom: 48 * 3);
   addTearDown(tester.view.reset);
 }
 
@@ -38,6 +54,7 @@ void celular(WidgetTester tester) {
 var escalaLetra = 1.3;
 
 Widget appCelular(Widget pantalla) => MaterialApp(
+      navigatorKey: navegadorRaiz,
       theme: temaClaro(),
       builder: (context, hijo) => MediaQuery(
         data: MediaQuery.of(context)
@@ -137,9 +154,33 @@ void main() {
   // margen, para que ningún usuario vea la franja amarilla y negra.
   for (final escala in [1.0, 1.3, 1.5]) {
     group('letra al ${(escala * 100).round()} %', () {
-      setUp(() => escalaLetra = escala);
+      setUp(() {
+        escalaLetra = escala;
+        enPC = false;
+      });
       pruebasDePantallas();
     });
+  }
+  group('ventana del PC', () {
+    setUp(() {
+      escalaLetra = 1.0;
+      enPC = true;
+    });
+    pruebasDePantallas();
+  });
+}
+
+/// Baja por todas las listas verticales de la pantalla para que se dibuje
+/// también lo que está fuera de la vista.
+Future<void> recorrerHastaAbajo(WidgetTester tester) async {
+  final listas = find.byWidgetPredicate((w) =>
+      w is Scrollable && axisDirectionToAxis(w.axisDirection) == Axis.vertical);
+  for (var vuelta = 0; vuelta < 6; vuelta++) {
+    final cuantas = listas.hitTestable().evaluate().length;
+    if (cuantas == 0) return;
+    await tester.drag(listas.hitTestable().first, const Offset(0, -700),
+        warnIfMissed: false);
+    await tester.pump(const Duration(milliseconds: 300));
   }
 }
 
@@ -191,6 +232,37 @@ void pruebasDePantallas() {
     await tester.pumpAndSettle();
   });
 
+  testWidgets('Hojas inferiores y ventanas de confirmación', (tester) async {
+    celular(tester);
+    Future<void> abrirYCerrar(Widget pantalla, Finder boton) async {
+      await tester.pumpWidget(appCelular(pantalla));
+      await tester.pumpAndSettle();
+      await tester.tap(boton.first);
+      await tester.pumpAndSettle();
+      await tester.tapAt(const Offset(10, 60)); // cierra tocando afuera
+      await tester.pumpAndSettle();
+    }
+
+    await iniciarComo('COMPRADOR');
+    await abrirYCerrar(const CatalogoScreen(), find.byTooltip('Filtros'));
+    await abrirYCerrar(
+        const AjustesCuentaScreen(), find.text('Información personal'));
+    await abrirYCerrar(
+        const InicioCompradorScreen(), find.byTooltip('Cerrar sesión'));
+    await iniciarComo('PRODUCTOR');
+    await abrirYCerrar(const MisLotesScreen(), find.text('Retirar'));
+    await tester.pumpWidget(appCelular(const AsistenciaTecnicaScreen()));
+    await tester.pumpAndSettle();
+    final fichas = find.byType(TarjetaAcceso);
+    for (var i = 0; i < fichas.evaluate().length; i++) {
+      await tester.ensureVisible(fichas.at(i));
+      await tester.tap(fichas.at(i));
+      await tester.pumpAndSettle();
+      await tester.tapAt(const Offset(10, 60));
+      await tester.pumpAndSettle();
+    }
+  });
+
   testWidgets('Resto de pantallas del menú', (tester) async {
     celular(tester);
     await iniciarComo('PRODUCTOR');
@@ -222,6 +294,7 @@ void pruebasDePantallas() {
       await tester.pumpWidget(appCelular(p));
       await tester.pump(const Duration(seconds: 1));
       await tester.pump(const Duration(seconds: 1));
+      await recorrerHastaAbajo(tester);
     }
   });
 
