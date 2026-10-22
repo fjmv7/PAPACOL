@@ -1,0 +1,33 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "PAPACOL: API (backend)",
+      "detail": "Inicia la API en el puerto 3000 (si ya está corriendo, no hace nada).",
+      "type": "shell",
+      "command": "ss -ltn | grep -q ':3000 ' && echo 'La API ya está corriendo en el puerto 3000' || npm start",
+      "options": { "cwd": "${workspaceFolder}/backend" },
+      "isBackground": true,
+      "problemMatcher": {
+        "pattern": { "regexp": "^__nunca__$" },
+        "background": {
+          "activesBegin": true,
+          "beginsPattern": ".",
+          "endsPattern": "(puerto|port|ya está corriendo|listening|escuchando)"
+        }
+      }
+    },
+    {
+      "label": "PAPACOL: conectar celular",
+      "detail": "Hace que el celular por USB llegue a la API del PC (adb reverse).",
+      "type": "shell",
+      "command": "adb reverse tcp:3000 tcp:3000 && echo 'Celular conectado a la API'",
+      "problemMatcher": []
+    },
+    {
+      "label": "PAPACOL: preparar",
+      "dependsOn": ["PAPACOL: API (backend)", "PAPACOL: conectar celular"],
+      "problemMatcher": []
+    }
+  ]
+}
