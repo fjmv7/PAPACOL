@@ -140,10 +140,8 @@ class _CatalogoVistaState extends State<CatalogoVista> {
     String orden = _orden;
     final precio =
         TextEditingController(text: _precioMax?.toStringAsFixed(0) ?? '');
-    final aplicar = await showModalBottomSheet<bool>(
+    final aplicar = await mostrarHoja<bool>(
       context: context,
-      isScrollControlled: true,
-      showDragHandle: true,
       builder: (hoja) => StatefulBuilder(
         builder: (hoja, set) => Padding(
           padding: EdgeInsets.fromLTRB(
