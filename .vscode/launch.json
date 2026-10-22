@@ -1,0 +1,35 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "PAPACOL en el celular",
+      "type": "dart",
+      "request": "launch",
+      "program": "frontend/lib/main.dart",
+      "cwd": "${workspaceFolder}/frontend",
+      "deviceId": "R58X703VY8F",
+      "args": [
+        "--dart-define=API_IP=127.0.0.1"
+      ]
+    },
+    {
+      "name": "PAPACOL en el PC",
+      "type": "dart",
+      "request": "launch",
+      "program": "frontend/lib/main.dart",
+      "cwd": "${workspaceFolder}/frontend",
+      "deviceId": "linux"
+    }
+  ],
+  "compounds": [
+    {
+      "name": "PAPACOL: celular + PC",
+      "configurations": [
+        "PAPACOL en el celular",
+        "PAPACOL en el PC"
+      ],
+      "stopAll": true,
+      "preLaunchTask": "PAPACOL: preparar"
+    }
+  ]
+}
