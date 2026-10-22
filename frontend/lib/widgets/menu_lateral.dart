@@ -78,7 +78,8 @@ class MenuLateral extends StatelessWidget {
     }
 
     return Drawer(
-      backgroundColor: Paleta.verdeCampo,
+      // Fondo claro con letra oscura: se lee mejor que el verde de antes.
+      backgroundColor: Theme.of(context).colorScheme.surface,
       child: SafeArea(
         child: Column(children: [
           Container(
@@ -114,14 +115,14 @@ class MenuLateral extends StatelessWidget {
               ),
             ]),
           ),
-          const Divider(color: Colors.white24, height: 1),
           Expanded(
             child: ListView(
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 children: opciones),
           ),
           if (u != null) ...[
-            const Divider(color: Colors.white24, height: 1),
+            Divider(
+                color: Theme.of(context).colorScheme.outlineVariant, height: 1),
             _Opcion(Icons.power_settings_new, 'Cerrar sesión', () {
               Navigator.pop(context);
               cerrarSesion();
@@ -140,11 +141,11 @@ class _Seccion extends StatelessWidget {
   const _Seccion();
 
   @override
-  Widget build(BuildContext context) => const Padding(
-        padding: EdgeInsets.fromLTRB(20, 18, 20, 6),
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsets.fromLTRB(20, 18, 20, 6),
         child: Text('PRÓXIMAMENTE · DEMOSTRACIÓN',
             style: TextStyle(
-                color: Paleta.cosecha,
+                color: Theme.of(context).colorScheme.secondary,
                 fontSize: 12,
                 letterSpacing: 1,
                 fontWeight: FontWeight.w700)),
@@ -184,10 +185,12 @@ class _Opcion extends StatelessWidget {
         leading: IconoIlustrado(icono,
             color: color ?? _tonos[texto] ?? TonosIcono.hoja, tamano: 38),
         title: Text(texto,
-            style: const TextStyle(
-                color: Colors.white,
+            style: TextStyle(
+                color: color == TonosIcono.ruana
+                    ? Theme.of(context).colorScheme.error
+                    : Theme.of(context).colorScheme.onSurface,
                 fontSize: 16,
-                fontWeight: FontWeight.w500)),
+                fontWeight: FontWeight.w600)),
         trailing: extra,
         onTap: alPulsar,
       );

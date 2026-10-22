@@ -94,6 +94,9 @@ psql -U papacol_app -d papacol -f database/schema.sql
 
 # 3. Cargar los datos de prueba
 psql -U papacol_app -d papacol -f database/seed.sql
+
+# 4. Solo si la base ya existía antes: agregar las 18 variedades y 7 calibres
+psql -U papacol_app -d papacol -f database/migraciones/001_variedades_calibres.sql
 ```
 
 Verificación: debe devolver seis tablas.
@@ -285,7 +288,8 @@ PAPACOL/
 │   └── package.json
 ├── database/
 │   ├── schema.sql         Modelo físico en 3FN
-│   └── seed.sql           Datos de prueba
+│   ├── seed.sql           Datos de prueba
+│   └── migraciones/       Cambios para bases ya creadas
 └── README.md
 ```
 ...

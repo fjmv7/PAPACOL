@@ -19,7 +19,12 @@ import 'navegacion.dart';
 /// CFV-03 — Detalle del lote y contacto (RF-10; Mockups diapositiva 5).
 class LoteDetalleScreen extends StatefulWidget {
   final int loteId;
-  const LoteDetalleScreen({super.key, required this.loteId});
+
+  /// true cuando se llega desde «Hablar con el productor» del catálogo:
+  /// al cargar el lote se abren de una vez las opciones de contacto.
+  final bool abrirContacto;
+  const LoteDetalleScreen(
+      {super.key, required this.loteId, this.abrirContacto = false});
 
   @override
   State<LoteDetalleScreen> createState() => _LoteDetalleScreenState();
@@ -30,6 +35,7 @@ class _LoteDetalleScreenState extends State<LoteDetalleScreen> {
   Lote? _lote;
   bool _cargando = true;
   bool _requiereSesion = false;
+  bool _contactoMostrado = false;
   String? _error;
 
   @override
@@ -46,7 +52,14 @@ class _LoteDetalleScreenState extends State<LoteDetalleScreen> {
     });
     try {
       final lote = await _servicio.detalle(widget.loteId);
-      if (mounted) setState(() => _lote = lote);
+      if (!mounted) return;
+      setState(() => _lote = lote);
+      if (widget.abrirContacto && !_contactoMostrado) {
+        _contactoMostrado = true;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) mostrarContacto(context, lote);
+        });
+      }
     } on ApiExcepcion catch (e) {
       if (!mounted) return;
       // HU-10: el detalle con el contacto del productor es para usuarios
@@ -60,7 +73,9 @@ class _LoteDetalleScreenState extends State<LoteDetalleScreen> {
             : e.mensaje);
       }
     } catch (_) {
-      if (mounted) setState(() => _error = 'No fue posible conectar con el servidor.');
+      if (mounted) {
+        setState(() => _error = 'No fue posible conectar con el servidor.');
+      }
     } finally {
       if (mounted) setState(() => _cargando = false);
     }
@@ -113,8 +128,8 @@ class _LoteDetalleScreenState extends State<LoteDetalleScreen> {
                   ),
                 )
               : _error != null
-              ? EstadoError(mensaje: _error!, alReintentar: _cargar)
-              : _construir(_lote!),
+                  ? EstadoError(mensaje: _error!, alReintentar: _cargar)
+                  : _construir(_lote!),
       bottomNavigationBar: _lote == null
           ? null
           : SafeArea(
@@ -169,7 +184,9 @@ class _LoteDetalleScreenState extends State<LoteDetalleScreen> {
         Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
           Text(pesos(l.precioBulto),
               style: TextStyle(
-                  fontSize: 30, fontWeight: FontWeight.w800, color: cs.primary)),
+                  fontSize: 30,
+                  fontWeight: FontWeight.w800,
+                  color: cs.primary)),
           const SizedBox(width: 6),
           Padding(
             padding: const EdgeInsets.only(bottom: 5),
@@ -306,7 +323,8 @@ Future<void> mostrarContacto(BuildContext context, Lote l) async {
         .catchError((_) => false);
     if (!ok && context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('No se encontró una aplicación para abrir el enlace.')));
+          content:
+              Text('No se encontró una aplicación para abrir el enlace.')));
     }
   }
 

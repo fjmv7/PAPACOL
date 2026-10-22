@@ -132,7 +132,8 @@ class _LoteFormScreenState extends State<LoteFormScreen> {
           key: _formulario,
           child: ListView(padding: const EdgeInsets.all(20), children: [
             Text(_esEdicion ? 'Actualiza tu lote' : 'Nuevo lote de papa',
-                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800)),
+                style:
+                    const TextStyle(fontSize: 24, fontWeight: FontWeight.w800)),
             const SizedBox(height: 4),
             Text('Completa los datos de tu cosecha',
                 style: TextStyle(color: cs.onSurfaceVariant)),
@@ -176,7 +177,8 @@ class _LoteFormScreenState extends State<LoteFormScreen> {
                       entero: true)),
               const SizedBox(width: 12),
               Expanded(
-                  child: _numero(_peso, 'Peso por bulto', 'kg', decimales: true)),
+                  child:
+                      _numero(_peso, 'Peso por bulto', 'kg', decimales: true)),
             ]),
             _numero(_precio, 'Precio por bulto', 'COP'),
             CampoEtiquetado(
@@ -224,7 +226,8 @@ class _LoteFormScreenState extends State<LoteFormScreen> {
                       height: 20,
                       width: 20,
                       child: CircularProgressIndicator(strokeWidth: 2))
-                  : Text(_esEdicion ? 'Guardar cambios' : 'Guardar publicación'),
+                  : Text(
+                      _esEdicion ? 'Guardar cambios' : 'Guardar publicación'),
             ),
           ]),
         ),

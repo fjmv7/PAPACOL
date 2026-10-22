@@ -17,8 +17,18 @@ String pesos(num valor) {
 String miles(num valor) => pesos(valor).replaceFirst(r'$', '');
 
 const _meses = [
-  'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio',
-  'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'
+  'enero',
+  'febrero',
+  'marzo',
+  'abril',
+  'mayo',
+  'junio',
+  'julio',
+  'agosto',
+  'septiembre',
+  'octubre',
+  'noviembre',
+  'diciembre'
 ];
 
 String nombreMes(int mes) => _meses[mes - 1];
@@ -30,7 +40,8 @@ String fechaLarga(String iso) {
   return '${f.day} de ${nombreMes(f.month)} de ${f.year}';
 }
 
-String fechaCorta(DateTime f) => '${f.day} ${nombreMes(f.month).substring(0, 3)}';
+String fechaCorta(DateTime f) =>
+    '${f.day} ${nombreMes(f.month).substring(0, 3)}';
 
 /// Saludo según la hora del día.
 String saludo() {
