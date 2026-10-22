@@ -56,7 +56,7 @@ void main() {
     expect(ApiClient.instancia.token, 'a.b.c');
     expect(Sesion.instancia.esProductor, isTrue);
     expect(find.byType(InicioProductorScreen), findsOneWidget);
-    expect(find.text('1 lotes activos'), findsOneWidget);
+    expect(find.text('1 lote activo'), findsOneWidget);
     // La consulta de lotes propios viaja con el token (RNF-02).
     expect(peticiones.last.headers['Authorization'], 'Bearer a.b.c');
   });

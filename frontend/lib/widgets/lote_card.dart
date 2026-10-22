@@ -90,16 +90,11 @@ class LoteCard extends StatelessWidget {
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(children: [
-                        Expanded(
-                          child: Text('Papa ${lote.variedad}',
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.w700, fontSize: 16)),
-                        ),
-                        if (mostrarEstado) ChipEstado(lote.estado),
-                      ]),
+                      Text('Papa ${lote.variedad}',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                              fontWeight: FontWeight.w700, fontSize: 16)),
                       const SizedBox(height: 3),
                       Text('${lote.calibre} · ${lote.municipio}',
                           maxLines: 1,
@@ -107,24 +102,45 @@ class LoteCard extends StatelessWidget {
                           style: TextStyle(color: cs.onSurfaceVariant)),
                       const SizedBox(height: 3),
                       Text(
-                          '${lote.cantidadBultos} bultos de ${lote.pesoBultoKg.toStringAsFixed(0)} kg',
+                          '${miles(lote.cantidadBultos)} bultos de ${lote.pesoBultoKg.toStringAsFixed(0)} kg',
                           style: TextStyle(
                               color: cs.onSurfaceVariant, fontSize: 12)),
+                      // El estado va en su propia línea para no apretar
+                      // el nombre de la variedad.
+                      if (mostrarEstado) ...[
+                        const SizedBox(height: 6),
+                        ChipEstado(lote.estado),
+                      ],
                     ]),
               ),
               const SizedBox(width: 10),
-              Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-                if (mostrarGuardar) _BotonGuardar(loteId: lote.id),
-                Text(pesos(lote.precioBulto),
-                    style: TextStyle(
-                        fontWeight: FontWeight.w800,
-                        fontSize: 16,
-                        color: cs.primary)),
-                Text('/ bulto',
-                    style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant)),
-                Text('≈ ${pesos(precioKg)}/kg',
-                    style: TextStyle(fontSize: 11, color: cs.secondary)),
-              ]),
+              // Columna del precio con ancho máximo: un precio muy largo
+              // se achica en vez de empujar el resto de la tarjeta.
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 120),
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      if (mostrarGuardar) _BotonGuardar(loteId: lote.id),
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(pesos(lote.precioBulto),
+                            style: TextStyle(
+                                fontWeight: FontWeight.w800,
+                                fontSize: 16,
+                                color: cs.primary)),
+                      ),
+                      Text('/ bulto',
+                          style: TextStyle(
+                              fontSize: 11, color: cs.onSurfaceVariant)),
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text('≈ ${pesos(precioKg)}/kg',
+                            style:
+                                TextStyle(fontSize: 11, color: cs.secondary)),
+                      ),
+                    ]),
+              ),
             ]),
           ),
           if (pie != null) ...[const Divider(height: 1), pie!],

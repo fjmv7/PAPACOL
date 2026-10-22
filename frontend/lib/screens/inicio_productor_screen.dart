@@ -120,14 +120,16 @@ class _InicioProductorScreenState extends State<InicioProductorScreen> {
             const SizedBox(height: 16),
             EncabezadoFoto(
               ruta: Fotos.recoleccionBaldes,
-              alto: 150,
+              // Sin alto fijo: crece si el valor en oferta ocupa dos líneas.
+              alto: null,
               radio: 22,
               child: Padding(
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.fromLTRB(20, 40, 20, 20),
                 child:
                     Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
                   Expanded(
                     child: Column(
+                        mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Text('Tus publicaciones',
@@ -145,10 +147,13 @@ class _InicioProductorScreenState extends State<InicioProductorScreen> {
                               style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 26,
-                                  fontWeight: FontWeight.w800)),
+                                  fontWeight: FontWeight.w800,
+                                  shadows: sombraTexto)),
                           if (_lotes != null)
-                            Text('$bultos bultos · ${pesos(valor)} en oferta',
-                                style: const TextStyle(color: Colors.white)),
+                            Text(
+                                '${miles(bultos)} bultos · ${pesos(valor)} en oferta',
+                                style: const TextStyle(
+                                    color: Colors.white, shadows: sombraTexto)),
                         ]),
                   ),
                 ]),
