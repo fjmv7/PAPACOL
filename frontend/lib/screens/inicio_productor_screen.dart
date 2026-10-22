@@ -131,12 +131,17 @@ class _InicioProductorScreenState extends State<InicioProductorScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Text('Tus publicaciones',
-                              style: TextStyle(color: Colors.white70)),
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                  shadows: sombraTexto)),
                           const SizedBox(height: 4),
                           Text(
                               _lotes == null
                                   ? (_errorLotes ? 'Sin conexión' : 'Cargando…')
-                                  : '${activos.length} lotes activos',
+                                  : activos.length == 1
+                                      ? '1 lote activo'
+                                      : '${activos.length} lotes activos',
                               style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 26,
