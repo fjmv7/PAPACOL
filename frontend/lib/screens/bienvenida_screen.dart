@@ -55,7 +55,11 @@ class _PresentacionScreenState extends State<PresentacionScreen> {
               LogoPapacol(tamano: 220, claro: true),
               SizedBox(height: 14),
               Text('Del campo al comprador',
-                  style: TextStyle(color: Colors.white, fontSize: 16)),
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 17,
+                      fontWeight: FontWeight.w600,
+                      shadows: sombraTexto)),
             ]),
           ),
         ]),
@@ -101,11 +105,16 @@ class _BienvenidaScreenState extends State<BienvenidaScreen> {
                         style: TextStyle(
                             color: Colors.white,
                             fontSize: 34,
-                            fontWeight: FontWeight.w800)),
+                            fontWeight: FontWeight.w800,
+                            shadows: sombraTexto)),
                     const SizedBox(height: 8),
                     const Text('¿Cómo quieres usar PAPACOL?',
                         textAlign: TextAlign.center,
-                        style: TextStyle(color: Colors.white70, fontSize: 15)),
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            shadows: sombraTexto)),
                     const SizedBox(height: 26),
                     _OpcionRol(
                       icono: Icons.agriculture_rounded,
@@ -206,7 +215,8 @@ class _OpcionRol extends StatelessWidget {
                               fontSize: 18,
                               fontWeight: FontWeight.w700)),
                       Text(detalle,
-                          style: const TextStyle(color: Colors.white70)),
+                          style: const TextStyle(
+                              color: Colors.white, shadows: sombraTexto)),
                     ]),
               ),
               Icon(

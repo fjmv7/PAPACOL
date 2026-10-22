@@ -45,16 +45,33 @@ INSERT INTO variedad_papa (nombre, descripcion) VALUES
     ('Parda Pastusa',   'Variedad de piel parda, alta demanda en mercado fresco'),
     ('Capiro',          'Variedad de uso industrial y mercado fresco'),
     ('Pastusa Suprema', 'Variedad mejorada de ciclo intermedio'),
-    ('Criolla',         'Papa amarilla de piel delgada y ciclo corto');
+    ('Criolla',         'Papa amarilla de piel delgada y ciclo corto'),
+    ('Criolla Colombia', 'Papa criolla amarilla mejorada, ciclo corto'),
+    ('Criolla Galeras', 'Papa criolla de Nariño, piel y pulpa amarillas'),
+    ('Criolla Guaneña', 'Papa criolla de Nariño, buena para fritura'),
+    ('Tuquerreña', 'También llamada Sabanera; piel roja con ojos amarillos'),
+    ('Tocarreña', 'Variedad nativa de Boyacá, piel morada y pulpa amarilla'),
+    ('Superior', 'Piel y pulpa blancas, para mercado fresco'),
+    ('ICA Única', 'Piel roja, tolerante a la gota, alto rendimiento'),
+    ('ICA Nevada', 'Piel blanca, ciclo intermedio'),
+    ('ICA Puracé', 'Variedad de clima frío, mercado fresco'),
+    ('Morasurco', 'Variedad de Nariño, piel roja, mercado fresco'),
+    ('Roja Nariño', 'Piel roja y pulpa crema, consumo en fresco'),
+    ('Rubí', 'Piel roja brillante, mercado fresco'),
+    ('Diacol Monserrate', 'Variedad de uso industrial y mercado fresco'),
+    ('Negra', 'Papa nativa de piel oscura, uso en cocina tradicional');
 
 -- ---------------------------------------------------------------------
 -- 4. Calibres comerciales
 -- ---------------------------------------------------------------------
 INSERT INTO calibre (nombre, rango_tamano) VALUES
+    ('Extra',   'Cabezona: tubérculo muy grande'),
     ('Primera', 'Tuberculo grande'),
     ('Segunda', 'Tuberculo mediano'),
     ('Tercera', 'Tuberculo pequeno'),
-    ('Riche',   'Tuberculo muy pequeno');
+    ('Riche',   'Tuberculo muy pequeno'),
+    ('Pareja', 'Mezcla de primera y segunda'),
+    ('Semilla', 'Tubérculo para siembra, tamaño mediano-pequeno');
 
 -- ---------------------------------------------------------------------
 -- 5. Usuarios de prueba (3 productores + 2 compradores)

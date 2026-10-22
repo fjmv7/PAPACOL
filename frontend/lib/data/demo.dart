@@ -16,11 +16,13 @@ class ContactoDemo {
 
 /// Lista de compradores (Canva, "Lista de Clientes").
 const compradoresDemo = [
-  ContactoDemo('Segundo Salamanca', 'Ubaté', 'Parda Pastusa · 40 bultos/semana'),
+  ContactoDemo(
+      'Segundo Salamanca', 'Ubaté', 'Parda Pastusa · 40 bultos/semana'),
   ContactoDemo('Oscar Benítez', 'Ubaté', 'Criolla · tiendas de barrio'),
   ContactoDemo('Daniel Gómez', 'Ubaté', 'Capiro · uso industrial'),
   ContactoDemo('Juan Martínez', 'Ubaté', 'Parda Pastusa · restaurante'),
-  ContactoDemo('Fabio Divantoque', 'Ubaté', 'Pastusa Suprema · plaza de mercado'),
+  ContactoDemo(
+      'Fabio Divantoque', 'Ubaté', 'Pastusa Suprema · plaza de mercado'),
   ContactoDemo('Astrid Villamizar', 'Ubaté', 'Criolla · supermercado'),
   ContactoDemo('Oscar Rojas', 'Ubaté', 'Parda Pastusa · mayorista'),
 ];
@@ -34,7 +36,8 @@ class EtapaCultivo {
 
 /// Etapas del calendario de siembra (Canva, "Calendario de siembra").
 const etapasCultivo = [
-  EtapaCultivo('Preparación del terreno', Color(0xFF805B39), Icons.landscape_outlined),
+  EtapaCultivo(
+      'Preparación del terreno', Color(0xFF805B39), Icons.landscape_outlined),
   EtapaCultivo('Siembra', Color(0xFF276749), Icons.grass),
   EtapaCultivo('Deshierbe', Color(0xFF5E9C76), Icons.content_cut),
   EtapaCultivo('Fertilizaciones', Color(0xFFEBB748), Icons.science_outlined),
@@ -55,9 +58,10 @@ class LaborProgramada {
 
 /// Plan de labores a partir de la fecha de siembra. Los días son
 /// referencias generales para papa de clima frío; cada finca los ajusta.
-List<LaborProgramada> planDeLabores(DateTime siembra, {bool cicloCorto = false}) {
-  DateTime d(int dias) =>
-      DateTime(siembra.year, siembra.month, siembra.day).add(Duration(days: dias));
+List<LaborProgramada> planDeLabores(DateTime siembra,
+    {bool cicloCorto = false}) {
+  DateTime d(int dias) => DateTime(siembra.year, siembra.month, siembra.day)
+      .add(Duration(days: dias));
   final cosecha = cicloCorto ? 110 : 160;
   return [
     LaborProgramada(etapasCultivo[0], d(-14), d(-1)),
@@ -145,17 +149,32 @@ const fichasTecnicas = [
     ('Rotación', 'Alterne con pastos o leguminosas para cortar plagas.'),
   ]),
   FichaTecnica('Plagas y enfermedades', Icons.bug_report_outlined, [
-    ('Gota (Phytophthora infestans)',
-        'Manchas oscuras en hojas en época de lluvias. Vigile a diario y use semilla sana.'),
-    ('Polilla guatemalteca (Tecia solanivora)',
-        'Daña el tubérculo en campo y en bodega. Coseche a tiempo y no deje papa en el lote.'),
-    ('Gusano blanco (Premnotrypes vorax)',
-        'Perfora el tubérculo. Ayuda la rotación y la preparación temprana del suelo.'),
+    (
+      'Gota (Phytophthora infestans)',
+      'Manchas oscuras en hojas en época de lluvias. Vigile a diario y use semilla sana.'
+    ),
+    (
+      'Polilla guatemalteca (Tecia solanivora)',
+      'Daña el tubérculo en campo y en bodega. Coseche a tiempo y no deje papa en el lote.'
+    ),
+    (
+      'Gusano blanco (Premnotrypes vorax)',
+      'Perfora el tubérculo. Ayuda la rotación y la preparación temprana del suelo.'
+    ),
   ]),
   FichaTecnica('Tutorial', Icons.play_circle_outline, [
-    ('Publicar un lote', 'Inicio → Publicar lote. Complete variedad, cantidad, precio y fecha de cosecha.'),
-    ('Actualizar inventario', 'Mi inventario → Editar. Ajuste la cantidad cuando venda una parte.'),
-    ('Responder compradores', 'Mensajes → elija la conversación y escriba su respuesta.'),
+    (
+      'Publicar un lote',
+      'Inicio → Publicar lote. Complete variedad, cantidad, precio y fecha de cosecha.'
+    ),
+    (
+      'Actualizar inventario',
+      'Mi inventario → Editar. Ajuste la cantidad cuando venda una parte.'
+    ),
+    (
+      'Responder compradores',
+      'Mensajes → elija la conversación y escriba su respuesta.'
+    ),
   ]),
 ];
 

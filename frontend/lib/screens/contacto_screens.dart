@@ -46,9 +46,11 @@ class _ContactoScreenState extends State<ContactoScreen> {
 
   void _enviar() {
     if (!_form.currentState!.validate()) return;
-    _confirmacion(context, 'Mensaje enviado',
+    _confirmacion(
+        context,
+        'Mensaje enviado',
         'Gracias, ${_nombre.text.trim()}. Te responderemos a ${_correo.text.trim()}. '
-        'Radicado ${_radicado('CT')}.');
+            'Radicado ${_radicado('CT')}.');
   }
 
   @override
@@ -137,9 +139,11 @@ class _PqrsScreenState extends State<PqrsScreen> {
 
   void _enviar() {
     if (!_form.currentState!.validate()) return;
-    _confirmacion(context, 'Solicitud registrada',
+    _confirmacion(
+        context,
+        'Solicitud registrada',
         'Tu ${_tipo.toLowerCase()} quedó con el radicado ${_radicado('PQRS')}. '
-        'Responderemos tu solicitud rápidamente.');
+            'Responderemos tu solicitud rápidamente.');
   }
 
   @override

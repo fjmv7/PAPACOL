@@ -354,19 +354,32 @@ class _CatalogoVistaState extends State<CatalogoVista> {
     ]);
   }
 
+  /// Categoría: fondo verde suave, punto con el color de la variedad y
+  /// verde oliva lleno cuando está elegida.
   Widget _chip(String texto, int? id) {
+    final cs = Theme.of(context).colorScheme;
     final seleccionado = _variedadId == id;
     return Padding(
       padding: const EdgeInsets.only(right: 8),
       child: ChoiceChip(
+        avatar: id == null
+            ? Icon(Icons.apps,
+                size: 16, color: seleccionado ? cs.onPrimary : cs.primary)
+            : CircleAvatar(
+                radius: 6,
+                backgroundColor:
+                    seleccionado ? cs.onPrimary : colorVariedad(texto)),
         label: Text(texto),
         selected: seleccionado,
         showCheckmark: false,
+        backgroundColor: cs.primaryContainer.withValues(alpha: 0.55),
+        selectedColor: cs.primary,
+        side: BorderSide(
+            color:
+                seleccionado ? cs.primary : cs.primary.withValues(alpha: 0.25)),
         labelStyle: TextStyle(
-            color: seleccionado
-                ? Theme.of(context).colorScheme.onPrimary
-                : Theme.of(context).colorScheme.onSurface,
-            fontWeight: FontWeight.w600),
+            color: seleccionado ? cs.onPrimary : cs.onPrimaryContainer,
+            fontWeight: FontWeight.w700),
         onSelected: (_) {
           setState(() => _variedadId = id);
           _cargar();
@@ -407,20 +420,26 @@ class _CatalogoVistaState extends State<CatalogoVista> {
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
         sliver: SliverLayoutBuilder(builder: (context, c) {
           final columnas = (c.crossAxisExtent / 440).floor().clamp(1, 3);
+          Widget tarjeta(int i) => _TarjetaCatalogo(lote: visibles[i]);
+          // En el celular (una columna) la tarjeta mide lo que necesita su
+          // contenido, así no se desborda con la letra grande del teléfono.
+          if (columnas == 1) {
+            return SliverList.separated(
+              itemCount: visibles.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 12),
+              itemBuilder: (_, i) => tarjeta(i),
+            );
+          }
+          final letra = MediaQuery.textScalerOf(context).scale(1);
           return SliverGrid.builder(
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: columnas,
               mainAxisSpacing: 12,
               crossAxisSpacing: 12,
-              mainAxisExtent: 128,
+              mainAxisExtent: 128 * letra + 56,
             ),
             itemCount: visibles.length,
-            itemBuilder: (_, i) => LoteCard(
-              lote: visibles[i],
-              mostrarGuardar: true,
-              alPulsar: () =>
-                  abrir(context, LoteDetalleScreen(loteId: visibles[i].id)),
-            ),
+            itemBuilder: (_, i) => tarjeta(i),
           );
         }),
       ),
@@ -438,5 +457,33 @@ class _CatalogoVistaState extends State<CatalogoVista> {
         ),
       ),
     ];
+  }
+}
+
+/// Tarjeta del catálogo con el botón para hablar con el productor.
+class _TarjetaCatalogo extends StatelessWidget {
+  final Lote lote;
+  const _TarjetaCatalogo({required this.lote});
+
+  @override
+  Widget build(BuildContext context) {
+    return LoteCard(
+      lote: lote,
+      mostrarGuardar: true,
+      alPulsar: () => abrir(context, LoteDetalleScreen(loteId: lote.id)),
+      pie: Padding(
+        padding: const EdgeInsets.fromLTRB(8, 2, 8, 4),
+        child: Align(
+          alignment: Alignment.centerRight,
+          child: TextButton.icon(
+            onPressed: () => abrir(context,
+                LoteDetalleScreen(loteId: lote.id, abrirContacto: true)),
+            icon: const Icon(Icons.shopping_cart_outlined, size: 20),
+            label: const Text('Hablar con el productor',
+                style: TextStyle(fontWeight: FontWeight.w700)),
+          ),
+        ),
+      ),
+    );
   }
 }

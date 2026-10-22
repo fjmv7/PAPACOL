@@ -99,11 +99,14 @@ ThemeData _construirTema(ColorScheme cs) {
       fillColor: cs.surfaceContainerLowest,
       contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
       border: OutlineInputBorder(
-          borderRadius: radio, borderSide: BorderSide(color: cs.outlineVariant)),
+          borderRadius: radio,
+          borderSide: BorderSide(color: cs.outlineVariant)),
       enabledBorder: OutlineInputBorder(
-          borderRadius: radio, borderSide: BorderSide(color: cs.outlineVariant)),
+          borderRadius: radio,
+          borderSide: BorderSide(color: cs.outlineVariant)),
       focusedBorder: OutlineInputBorder(
-          borderRadius: radio, borderSide: BorderSide(color: cs.primary, width: 2)),
+          borderRadius: radio,
+          borderSide: BorderSide(color: cs.primary, width: 2)),
     ),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(

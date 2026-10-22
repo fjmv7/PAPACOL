@@ -28,6 +28,14 @@ class Fotos {
     if (v.contains('capiro') || v.contains('negra')) return cosechaRoja;
     if (v.contains('suprema')) return bultos;
     if (v.contains('tocarre')) return recoleccionBaldes;
+    if (v.contains('roja') ||
+        v.contains('rub') ||
+        v.contains('morasurco') ||
+        v.contains('única') ||
+        v.contains('tuquerre')) {
+      return cosechaRoja;
+    }
+    if (v.contains('superior') || v.contains('nevada')) return bultos;
     return cosechaRecoleccion;
   }
 }
@@ -170,8 +178,10 @@ class _CarruselFondoState extends State<CarruselFondo> {
                 Padding(
                   padding: const EdgeInsets.only(bottom: 6),
                   child: Text(leyenda,
-                      style:
-                          const TextStyle(color: Colors.white70, fontSize: 12)),
+                      style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          shadows: sombraTexto)),
                 ),
               Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                 for (var i = 0; i < widget.fotos.length; i++)
@@ -212,12 +222,14 @@ class _FotoConZoom extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AnimatedScale(
-      scale: activa ? 1.12 : 1.0,
+      // Zoom suave: más zoom pixela las fotos en pantallas grandes.
+      scale: activa ? 1.04 : 1.0,
       duration: activa ? duracion : Duration.zero,
       curve: Curves.linear,
       child: Image.asset(
         ruta,
         fit: BoxFit.cover,
+        filterQuality: FilterQuality.high,
         gaplessPlayback: true,
         errorBuilder: (_, __, ___) =>
             ColoredBox(color: Theme.of(context).colorScheme.primary),
@@ -249,7 +261,7 @@ class EncabezadoFoto extends StatelessWidget {
         Positioned.fill(
           child: Image.asset(ruta,
               fit: BoxFit.cover,
-              filterQuality: FilterQuality.medium,
+              filterQuality: FilterQuality.high,
               errorBuilder: (_, __, ___) =>
                   ColoredBox(color: Theme.of(context).colorScheme.primary)),
         ),
@@ -272,3 +284,8 @@ class EncabezadoFoto extends StatelessWidget {
     );
   }
 }
+
+/// Sombra para que el texto blanco se lea sobre cualquier foto.
+const sombraTexto = [
+  Shadow(color: Color(0xB3000000), blurRadius: 6, offset: Offset(0, 1)),
+];

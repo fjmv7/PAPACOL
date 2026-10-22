@@ -78,14 +78,15 @@ class _Lista extends StatelessWidget {
               children: [
                 if (u != null)
                   Text(_hora(u.hora),
-                      style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant)),
+                      style:
+                          TextStyle(fontSize: 11, color: cs.onSurfaceVariant)),
                 if (!c.leida)
                   Container(
                     margin: const EdgeInsets.only(top: 4),
                     width: 10,
                     height: 10,
-                    decoration:
-                        BoxDecoration(color: cs.primary, shape: BoxShape.circle),
+                    decoration: BoxDecoration(
+                        color: cs.primary, shape: BoxShape.circle),
                   ),
               ],
             ),
@@ -143,7 +144,8 @@ class _ChatScreenState extends State<ChatScreen> {
           AvatarIniciales(c.contacto, radio: 18),
           const SizedBox(width: 10),
           Expanded(
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(c.contacto, style: const TextStyle(fontSize: 17)),
               if (c.detalle.isNotEmpty)
                 Text(c.detalle,

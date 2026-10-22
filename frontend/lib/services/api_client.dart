@@ -42,8 +42,8 @@ class ApiClient {
       };
 
   Uri _uri(String ruta, [Map<String, String>? consulta]) =>
-      Uri.parse('${ApiConfig.urlBase}$ruta')
-          .replace(queryParameters: consulta?.isEmpty ?? true ? null : consulta);
+      Uri.parse('${ApiConfig.urlBase}$ruta').replace(
+          queryParameters: consulta?.isEmpty ?? true ? null : consulta);
 
   Future<Map<String, dynamic>> get(String ruta,
           {Map<String, String>? consulta}) =>
@@ -86,7 +86,8 @@ class ApiClient {
     try {
       cuerpo = respuesta.body.isEmpty
           ? <String, dynamic>{}
-          : jsonDecode(utf8.decode(respuesta.bodyBytes)) as Map<String, dynamic>;
+          : jsonDecode(utf8.decode(respuesta.bodyBytes))
+              as Map<String, dynamic>;
     } on FormatException {
       throw ApiExcepcion(
           'El servidor respondió algo inesperado.', respuesta.statusCode);
