@@ -174,14 +174,22 @@ class _LoteDetalleScreenState extends State<LoteDetalleScreen> {
         Text('Papa ${l.variedad}',
             style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w800)),
         const SizedBox(height: 4),
-        Row(children: [
-          Icon(Icons.place_outlined, size: 18, color: cs.onSurfaceVariant),
+        Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 2),
+            child: Icon(Icons.place_outlined,
+                size: 18, color: cs.onSurfaceVariant),
+          ),
           const SizedBox(width: 4),
-          Text('${l.municipio} · calibre ${l.calibre}',
-              style: TextStyle(color: cs.onSurfaceVariant)),
+          // Expanded: un municipio largo baja a la línea siguiente.
+          Expanded(
+            child: Text('${l.municipio} · calibre ${l.calibre}',
+                style: TextStyle(color: cs.onSurfaceVariant)),
+          ),
         ]),
         const SizedBox(height: 16),
-        Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
+        // Wrap: si el precio es muy largo, «/ bulto» pasa abajo.
+        Wrap(crossAxisAlignment: WrapCrossAlignment.end, children: [
           Text(pesos(l.precioBulto),
               style: TextStyle(
                   fontSize: 30,
@@ -255,11 +263,14 @@ class _Dato extends StatelessWidget {
       child: Row(mainAxisSize: MainAxisSize.min, children: [
         Icon(icono, size: 20, color: cs.primary),
         const SizedBox(width: 8),
-        Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(etiqueta,
-              style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant)),
-          Text(valor, style: const TextStyle(fontWeight: FontWeight.w700)),
-        ]),
+        Flexible(
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(etiqueta,
+                style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant)),
+            Text(valor, style: const TextStyle(fontWeight: FontWeight.w700)),
+          ]),
+        ),
       ]),
     );
   }

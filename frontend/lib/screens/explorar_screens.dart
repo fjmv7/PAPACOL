@@ -44,7 +44,8 @@ class ExplorarVista extends StatelessWidget {
         const SizedBox(height: 16),
         const TituloSeccion('Variedades de papa'),
         SizedBox(
-          height: 176,
+          // La altura crece con el tamaño de letra del celular.
+          height: 136 + 34 * MediaQuery.textScalerOf(context).scale(1),
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             itemCount: fichasVariedades.length,
