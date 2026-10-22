@@ -63,6 +63,7 @@ class _MisLotesScreenState extends State<MisLotesScreen> {
     final confirmado = await showDialog<bool>(
       context: context,
       builder: (dialogo) => AlertDialog(
+        scrollable: true,
         title: const Text('Retirar lote'),
         content: Text(
           'El lote de ${lote.variedad} dejará de aparecer en el catálogo '

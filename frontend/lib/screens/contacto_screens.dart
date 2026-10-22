@@ -12,6 +12,7 @@ Future<void> _confirmacion(BuildContext context, String titulo, String texto) =>
     showDialog<void>(
       context: context,
       builder: (d) => AlertDialog(
+        scrollable: true,
         icon: const Icon(Icons.check_circle_outline, size: 44),
         title: Text(titulo),
         content: Text(texto),

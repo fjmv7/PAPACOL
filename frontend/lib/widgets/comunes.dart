@@ -479,3 +479,19 @@ class Centrado extends StatelessWidget {
             constraints: BoxConstraints(maxWidth: ancho), child: child),
       );
 }
+
+/// Hoja inferior de la app: siempre se puede desplazar y nunca pasa del
+/// 90 % de la pantalla, así no aparece la franja de desborde aunque el
+/// celular tenga la letra grande o las barras del sistema ocupen espacio.
+Future<T?> mostrarHoja<T>({
+  required BuildContext context,
+  required WidgetBuilder builder,
+}) =>
+    showModalBottomSheet<T>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      constraints: BoxConstraints(
+          maxHeight: MediaQuery.sizeOf(context).height * 0.9, maxWidth: 640),
+      builder: (hoja) => SingleChildScrollView(child: builder(hoja)),
+    );

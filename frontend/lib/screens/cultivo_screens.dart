@@ -372,10 +372,8 @@ class _AsistenciaTecnicaScreenState extends State<AsistenciaTecnicaScreen> {
   }
 
   void _abrirFicha(FichaTecnica f) {
-    showModalBottomSheet<void>(
+    mostrarHoja<void>(
       context: context,
-      showDragHandle: true,
-      isScrollControlled: true,
       builder: (_) => SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
@@ -386,9 +384,11 @@ class _AsistenciaTecnicaScreenState extends State<AsistenciaTecnicaScreen> {
                 Row(children: [
                   Icon(f.icono, color: Theme.of(context).colorScheme.primary),
                   const SizedBox(width: 10),
-                  Text(f.titulo,
-                      style: const TextStyle(
-                          fontSize: 20, fontWeight: FontWeight.w800)),
+                  Expanded(
+                    child: Text(f.titulo,
+                        style: const TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.w800)),
+                  ),
                 ]),
                 const SizedBox(height: 14),
                 for (final (t, d) in f.puntos)
@@ -484,18 +484,24 @@ class _AsistenciaTecnicaScreenState extends State<AsistenciaTecnicaScreen> {
           ),
           const SizedBox(height: 12),
           Row(children: [
-            for (var i = 0; i < pasosGuia.length; i++)
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                margin: const EdgeInsets.only(right: 6),
-                width: i == _paso ? 22 : 8,
-                height: 8,
-                decoration: BoxDecoration(
-                  color: i == _paso ? cs.primary : cs.outlineVariant,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-            const Spacer(),
+            // Los puntos bajan de línea si el botón con letra grande no deja
+            // espacio.
+            Expanded(
+              child: Wrap(runSpacing: 6, children: [
+                for (var i = 0; i < pasosGuia.length; i++)
+                  AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    margin: const EdgeInsets.only(right: 6),
+                    width: i == _paso ? 22 : 8,
+                    height: 8,
+                    decoration: BoxDecoration(
+                      color: i == _paso ? cs.primary : cs.outlineVariant,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+              ]),
+            ),
+            const SizedBox(width: 8),
             FilledButton(
               style: FilledButton.styleFrom(minimumSize: const Size(120, 44)),
               onPressed: () {

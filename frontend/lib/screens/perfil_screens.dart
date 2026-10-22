@@ -161,6 +161,7 @@ class PerfilVista extends StatelessWidget {
     showDialog<void>(
       context: context,
       builder: (d) => AlertDialog(
+        scrollable: true,
         icon: const Icon(Icons.place_outlined),
         title: const Text('Ubicación'),
         content: Text(
@@ -205,6 +206,7 @@ class AjustesCuentaScreen extends StatelessWidget {
     final ok = await showDialog<bool>(
       context: context,
       builder: (d) => AlertDialog(
+        scrollable: true,
         icon: Icon(Icons.warning_amber_rounded, color: cs.error),
         title: Text(titulo),
         content: Text(texto),
@@ -305,9 +307,8 @@ class AjustesCuentaScreen extends StatelessWidget {
 
   void _infoPersonal(BuildContext context, Usuario? u) {
     if (u == null) return;
-    showModalBottomSheet<void>(
+    mostrarHoja<void>(
       context: context,
-      showDragHandle: true,
       builder: (_) => SafeArea(
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           ListTile(
