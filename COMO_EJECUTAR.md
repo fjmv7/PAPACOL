@@ -39,10 +39,10 @@ Está bien cuando aparece:
 adb devices
 ```
 
-3. Unir el celular con la API (repetir cada vez que se reconecte el cable):
+3. Unir el celular con la API (repetir **cada vez que se reconecte el cable**):
 
 ```bash
-adb reverse tcp:3000 tcp:3000
+cd ~/Descargas/PAPACOL.01/PAPACOL && npm run celular
 ```
 
 ## 4. App en el celular — Terminal 2
@@ -80,7 +80,7 @@ cd ~/Descargas/PAPACOL.01/PAPACOL/frontend && flutter run -d linux
 | Qué pasa | Qué hacer |
 |---|---|
 | `npm ERR! enoent … package.json` | No estás en la carpeta del proyecto: usa el comando completo del paso 2 |
-| Celular: «No fue posible conectar con el servidor» | Revisar que la Terminal 1 siga abierta y repetir `adb reverse tcp:3000 tcp:3000` |
+| Celular: «No fue posible conectar con el servidor» | Revisar que la Terminal 1 siga abierta y ejecutar `npm run celular` (el cable se reconectó y el túnel se perdió) |
 | `adb devices` sale vacío | Cambiar cable o puerto USB; en el celular apagar y encender **Depuración USB** |
 | La app del celular «no avanza» | Abrir PAPACOL en el celular: Android la pausa si otra app está al frente |
 | Compila muy lento | Cerrar Chrome, pgAdmin y el editor de documentos antes de ejecutar |
