@@ -3,23 +3,13 @@
   "tasks": [
     {
       "label": "PAPACOL: API (backend)",
-      "detail": "Inicia la API en el puerto 3000 (si ya está corriendo, no hace nada).",
+      "detail": "Inicia la API en el puerto 3000 en segundo plano (si ya está corriendo, no hace nada).",
       "type": "shell",
-      "command": "ss -ltn | grep -q ':3000 ' && echo 'La API ya está corriendo en el puerto 3000' || npm start",
+      "command": "if ss -ltn | grep -q ':3000 '; then echo 'La API ya está corriendo en el puerto 3000'; else nohup npm start > /tmp/papacol-api.log 2>&1 & for i in $(seq 1 30); do ss -ltn | grep -q ':3000 ' && break; sleep 1; done; ss -ltn | grep -q ':3000 ' && echo 'API iniciada (registro en /tmp/papacol-api.log)' || { echo 'La API no arrancó, revisa /tmp/papacol-api.log'; cat /tmp/papacol-api.log; exit 1; }; fi",
       "options": {
         "cwd": "${workspaceFolder}/backend"
       },
-      "isBackground": true,
-      "problemMatcher": {
-        "pattern": {
-          "regexp": "^__nunca__$"
-        },
-        "background": {
-          "activesBegin": true,
-          "beginsPattern": ".",
-          "endsPattern": "(puerto|port|ya está corriendo|listening|escuchando)"
-        }
-      }
+      "problemMatcher": []
     },
     {
       "label": "PAPACOL: conectar celular",
@@ -34,7 +24,8 @@
         "PAPACOL: API (backend)",
         "PAPACOL: conectar celular"
       ],
-      "problemMatcher": []
+      "problemMatcher": [],
+      "dependsOrder": "sequence"
     }
   ]
 }
