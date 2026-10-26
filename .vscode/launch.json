@@ -5,7 +5,7 @@
       "name": "PAPACOL en el celular",
       "type": "dart",
       "request": "launch",
-      "program": "frontend/lib/main.dart",
+      "program": "lib/main.dart",
       "cwd": "${workspaceFolder}/frontend",
       "deviceId": "R58X703VY8F",
       "args": [
@@ -16,7 +16,7 @@
       "name": "PAPACOL en el PC",
       "type": "dart",
       "request": "launch",
-      "program": "frontend/lib/main.dart",
+      "program": "lib/main.dart",
       "cwd": "${workspaceFolder}/frontend",
       "deviceId": "linux"
     }
