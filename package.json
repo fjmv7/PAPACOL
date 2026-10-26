@@ -3,8 +3,9 @@
   "private": true,
   "description": "Atajos para ejecutar la API desde la carpeta principal del proyecto.",
   "scripts": {
-    "start": "npm --prefix backend start",
-    "dev": "npm --prefix backend run dev",
+    "dev": "(adb reverse tcp:3000 tcp:3000 >/dev/null 2>&1 && echo 'Celular unido a la API') ; npm --prefix backend run dev",
+    "start": "(adb reverse tcp:3000 tcp:3000 >/dev/null 2>&1 && echo 'Celular unido a la API') ; npm --prefix backend start",
+    "celular": "adb reverse tcp:3000 tcp:3000 && echo 'Celular unido a la API' || echo 'No encuentro el celular: conéctalo por USB y acepta la depuración'",
     "test": "npm --prefix backend test"
   }
 }
