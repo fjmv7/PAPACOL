@@ -15,6 +15,10 @@ class Sesion extends ChangeNotifier {
   Usuario? get usuario => _usuario;
   bool get autenticado => _usuario != null;
   bool get esProductor => _usuario?.esProductor ?? false;
+  bool get esComprador => autenticado && !esProductor;
+
+  Future<void> cambiarContrasena(String actual, String nueva) =>
+      _auth.cambiarContrasena(actual, nueva);
 
   Future<void> iniciarSesion(String correo, String contrasena) async {
     final (_, usuario) = await _auth.iniciarSesion(correo, contrasena);

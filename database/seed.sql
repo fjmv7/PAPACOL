@@ -45,22 +45,41 @@ INSERT INTO variedad_papa (nombre, descripcion) VALUES
     ('Parda Pastusa',   'Variedad de piel parda, alta demanda en mercado fresco'),
     ('Capiro',          'Variedad de uso industrial y mercado fresco'),
     ('Pastusa Suprema', 'Variedad mejorada de ciclo intermedio'),
-    ('Criolla',         'Papa amarilla de piel delgada y ciclo corto');
+    ('Criolla',         'Papa amarilla de piel delgada y ciclo corto'),
+    ('Criolla Colombia', 'Papa criolla amarilla mejorada, ciclo corto'),
+    ('Criolla Galeras', 'Papa criolla de Nariño, piel y pulpa amarillas'),
+    ('Criolla Guaneña', 'Papa criolla de Nariño, buena para fritura'),
+    ('Tuquerreña', 'También llamada Sabanera; piel roja con ojos amarillos'),
+    ('Tocarreña', 'Variedad nativa de Boyacá, piel morada y pulpa amarilla'),
+    ('Superior', 'Piel y pulpa blancas, para mercado fresco'),
+    ('ICA Única', 'Piel roja, tolerante a la gota, alto rendimiento'),
+    ('ICA Nevada', 'Piel blanca, ciclo intermedio'),
+    ('ICA Puracé', 'Variedad de clima frío, mercado fresco'),
+    ('Morasurco', 'Variedad de Nariño, piel roja, mercado fresco'),
+    ('Roja Nariño', 'Piel roja y pulpa crema, consumo en fresco'),
+    ('Rubí', 'Piel roja brillante, mercado fresco'),
+    ('Diacol Monserrate', 'Variedad de uso industrial y mercado fresco'),
+    ('Negra', 'Papa nativa de piel oscura, uso en cocina tradicional');
 
 -- ---------------------------------------------------------------------
 -- 4. Calibres comerciales
 -- ---------------------------------------------------------------------
 INSERT INTO calibre (nombre, rango_tamano) VALUES
+    ('Extra',   'Cabezona: tubérculo muy grande'),
     ('Primera', 'Tuberculo grande'),
     ('Segunda', 'Tuberculo mediano'),
     ('Tercera', 'Tuberculo pequeno'),
-    ('Riche',   'Tuberculo muy pequeno');
+    ('Riche',   'Tuberculo muy pequeno'),
+    ('Pareja', 'Mezcla de primera y segunda'),
+    ('Semilla', 'Tubérculo para siembra, tamaño mediano-pequeno');
 
 -- ---------------------------------------------------------------------
--- 5. Usuarios de prueba (2 productores + 2 compradores)
+-- 5. Usuarios de prueba (3 productores + 2 compradores)
 --    Contrasenas en claro (SOLO ENTORNO LOCAL):
---      productores -> Productor.2026
+--      productores -> Productor.2026 (Rosa Pulido -> Prueba.2026)
 --      compradores -> Comprador.2026
+--    Rosa Pulido es la cuenta creada desde la app en la demostracion de
+--    la Entrega 2 (diapositivas 7 y 8); se incluye para poder repetirla.
 -- ---------------------------------------------------------------------
 INSERT INTO usuario (identificacion, nombre, apellido, correo, telefono,
                      contrasena_hash, rol_id, municipio_id, estado)
@@ -73,6 +92,12 @@ VALUES
 
     ('1020202020', 'Marta', 'Sanchez',   'marta.sanchez@pruebas.papacol.local', '3002223344',
      '$2a$10$I0fbJ7.p/bDVwV50s7X9e.wENFnAlsFU3N/s0UsAjL.mxjt6PmcAi',
+     (SELECT rol_id FROM rol WHERE nombre = 'PRODUCTOR'),
+     (SELECT municipio_id FROM municipio WHERE nombre = 'Carmen de Carupa'),
+     'ACTIVO'),
+
+    ('1023456789', 'Rosa',  'Pulido Cárdenas', 'rosa.pulido@pruebas.papacol.local', '3124567890',
+     '$2a$10$N.CnXMiTrPE/pIL8FX6oN.pFzsglCDKTnGdymO7IY/Qrq0cdUm4xa',
      (SELECT rol_id FROM rol WHERE nombre = 'PRODUCTOR'),
      (SELECT municipio_id FROM municipio WHERE nombre = 'Carmen de Carupa'),
      'ACTIVO'),
@@ -92,7 +117,8 @@ VALUES
 -- ---------------------------------------------------------------------
 -- 6. Lotes de prueba
 --    Cubren los estados relevantes para probar el filtro del catalogo
---    (RN-07): 3 DISPONIBLE, 1 RESERVADO, 1 RETIRADO.
+--    (RN-07): 4 DISPONIBLE, 1 RESERVADO, 1 RETIRADO.
+--    El ultimo es el lote de Criolla que Rosa publico en la demostracion.
 -- ---------------------------------------------------------------------
 INSERT INTO lote (usuario_id, variedad_id, calibre_id, cantidad_bultos,
                   peso_bulto_kg, precio_bulto, fecha_cosecha, fecha_publicacion,
@@ -126,7 +152,13 @@ VALUES
      (SELECT variedad_id FROM variedad_papa WHERE nombre = 'Parda Pastusa'),
      (SELECT calibre_id  FROM calibre       WHERE nombre = 'Riche'),
      10, 50.00, 40000.00, DATE '2026-08-20', DATE '2026-08-22',
-     'RETIRADO', 'Retirado por el productor: se vendio por canal tradicional');
+     'RETIRADO', 'Retirado por el productor: se vendio por canal tradicional'),
+
+    ((SELECT usuario_id  FROM usuario       WHERE correo = 'rosa.pulido@pruebas.papacol.local'),
+     (SELECT variedad_id FROM variedad_papa WHERE nombre = 'Criolla'),
+     (SELECT calibre_id  FROM calibre       WHERE nombre = 'Primera'),
+     30, 50.00, 115000.00, DATE '2026-10-21', DATE '2026-10-21',
+     'DISPONIBLE', 'Criolla seleccionada, lista para entregar en Ubate');
 
 COMMIT;
 

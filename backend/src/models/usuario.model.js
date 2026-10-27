@@ -28,6 +28,18 @@ async function buscarCredencialesPorCorreo(correo) {
   return rows[0] || null;
 }
 
+/** Hash de la contrasena por identificador. Uso exclusivo del cambio de contrasena. */
+async function buscarCredencialesPorId(usuarioId) {
+  const { rows } = await consultar(
+    'SELECT usuario_id, contrasena_hash, estado FROM usuario WHERE usuario_id = $1', [usuarioId]);
+  return rows[0] || null;
+}
+
+async function actualizarContrasena(usuarioId, contrasenaHash) {
+  await consultar('UPDATE usuario SET contrasena_hash = $1 WHERE usuario_id = $2',
+    [contrasenaHash, usuarioId]);
+}
+
 async function buscarPorId(usuarioId) {
   const { rows } = await consultar(`${SELECT_BASE} WHERE u.usuario_id = $1`, [usuarioId]);
   return rows[0] || null;
@@ -52,5 +64,6 @@ async function crear(datos) {
 }
 
 module.exports = {
-  buscarPorCorreo, buscarCredencialesPorCorreo, buscarPorId, existeIdentificacion, crear
+  buscarPorCorreo, buscarCredencialesPorCorreo, buscarCredencialesPorId, buscarPorId,
+  existeIdentificacion, crear, actualizarContrasena
 };

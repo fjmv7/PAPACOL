@@ -94,6 +94,9 @@ psql -U papacol_app -d papacol -f database/schema.sql
 
 # 3. Cargar los datos de prueba
 psql -U papacol_app -d papacol -f database/seed.sql
+
+# 4. Solo si la base ya existía antes: agregar las 18 variedades y 7 calibres
+psql -U papacol_app -d papacol -f database/migraciones/001_variedades_calibres.sql
 ```
 
 Verificación: debe devolver seis tablas.
@@ -131,15 +134,37 @@ Comprobación desde otra terminal o desde el navegador:
 curl http://localhost:3000/api/v1/salud
 ```
 
-### 4.4 Ejecutar las pruebas unitarias
+### 4.4 Ejecutar las pruebas
 
 ```bash
 cd backend
-npm test              # 50 pruebas sobre la lógica de negocio
+npm test              # 80 pruebas: unitarias, integración de la API y tiempo de respuesta
 npm run test:cobertura
+npm run test:e2e      # 5 pruebas extremo a extremo contra PostgreSQL real (requiere la BD)
 ```
 
-Las pruebas **no requieren** que PostgreSQL esté corriendo: la capa de modelos se sustituye por dobles de prueba (RNF-10).
+| Tipo | Archivo | Qué comprueba |
+|---|---|---|
+| Unitarias | `tests/*.service.test.js` | Reglas de negocio RN-01 a RN-09, letras/números en el registro |
+| Integración | `tests/integracion.api.test.js`, `tests/catalogo.routes.test.js` | Ruta → middleware → servicio → errores, con los códigos HTTP de RF-01 a RF-10 |
+| Tiempo de respuesta | `tests/rendimiento.api.test.js` | Promedio < 50 ms y peor caso < 200 ms por petición |
+| Extremo a extremo | `tests/integracion/e2e.real.test.js` | Login < 1,5 s y catálogo real con p95 < 300 ms |
+
+`npm test` **no requiere** PostgreSQL: la capa de modelos se sustituye por dobles de prueba (RNF-10).
+
+En el cliente Flutter:
+
+```bash
+cd frontend
+flutter test          # 31 pruebas
+```
+
+| Archivo | Qué comprueba |
+|---|---|
+| `test/validadores_test.dart` | Reglas de cada campo y filtros de teclado (solo números, solo letras, decimales) |
+| `test/campos_test.dart` | En las pantallas reales no se pueden escribir letras en campos numéricos ni números en nombres |
+| `test/integracion_test.dart` | Pantalla → servicio → API simulada: login, registro, catálogo, detalle con y sin sesión |
+| `test/rendimiento_test.dart` | Tiempos de conversión y de dibujo del catálogo, y aviso cuando el servidor tarda demasiado |
 
 ### 4.5 Probar la API con Thunder Client
 
@@ -174,22 +199,27 @@ flutter run
 flutter run -d chrome
 ```
 
-> **Importante — dirección de la API.** El emulador de Android **no alcanza** `localhost` del computador. Por eso `lib/config/api_config.dart` usa `10.0.2.2` en Android, `localhost` en web, y una IP configurable para dispositivo físico. Si va a probar en un teléfono real conectado a la misma red wifi, edite en ese archivo `_ipEquipoEnRedLocal` con la IP de su computador y ponga `usarDispositivoFisico = true`.
+> **Importante — dirección de la API.** El emulador de Android **no alcanza** `localhost` del computador. Por eso `lib/config/api_config.dart` usa `10.0.2.2` en Android y `localhost` en web y escritorio. Para probar en un teléfono real conectado a la misma red wifi, pase la IP de su computador (`hostname -I`) al ejecutar:
+>
+> ```bash
+> flutter run --dart-define=API_IP=192.168.1.50
+> ```
 
 ---
 
 ## 5. Datos de prueba
 
-`database/seed.sql` carga cuatro usuarios de prueba. Las contraseñas son **exclusivamente para el entorno local**:
+`database/seed.sql` carga cinco usuarios de prueba. Las contraseñas son **exclusivamente para el entorno local**:
 
 | Correo | Rol | Contraseña |
 |---|---|---|
 | jose.rodriguez@pruebas.papacol.local | PRODUCTOR | `Productor.2026` |
 | marta.sanchez@pruebas.papacol.local | PRODUCTOR | `Productor.2026` |
+| rosa.pulido@pruebas.papacol.local | PRODUCTOR | `Prueba.2026` |
 | carlos.beltran@pruebas.papacol.local | COMPRADOR | `Comprador.2026` |
 | luisa.moreno@pruebas.papacol.local | COMPRADOR | `Comprador.2026` |
 
-También carga 5 lotes: 3 disponibles, 1 reservado y 1 retirado, para poder verificar que el filtro del catálogo público solo muestra los disponibles.
+También carga 6 lotes: 4 disponibles, 1 reservado y 1 retirado, para poder verificar que el filtro del catálogo público solo muestra los disponibles. La cuenta de Rosa Pulido y su lote de Criolla son los de la demostración de la Entrega 2, así la demo de las diapositivas se puede repetir.
 
 ⚠️ Estas credenciales **no son de producción**. El archivo `.env`, que sí contiene secretos reales, está en `.gitignore` y nunca se versiona (RNF-14).
 
@@ -206,12 +236,13 @@ Base: `http://localhost:3000/api/v1`
 | POST | `/auth/registro` | — | RF-01, RF-02 | 201 · 400 si hay datos inválidos · 409 si el correo existe |
 | POST | `/auth/login` | — | RF-03 | 200 con token · 401 si las credenciales fallan |
 | GET | `/auth/perfil` | Bearer | — | 200 · 401 sin token |
+| PUT | `/auth/contrasena` | Bearer | RN-08 | 200 · 400 nueva inválida · 401 contraseña actual incorrecta |
 | POST | `/lotes` | Bearer PRODUCTOR | RF-04 | 201 · 400 datos inválidos · 403 si no es productor |
 | GET | `/lotes/mios` | Bearer PRODUCTOR | RF-05 | 200 |
 | PUT | `/lotes/:id` | Bearer PRODUCTOR | RF-06 | 200 · 403 lote ajeno · 404 inexistente · 409 retirado |
 | DELETE | `/lotes/:id` | Bearer PRODUCTOR | RF-07 | 200, estado RETIRADO · 409 si ya estaba retirado |
 | GET | `/catalogo` | — | RF-08, RF-09 | 200 · 400 con parámetros inválidos |
-| GET | `/catalogo/:id` | — | RF-10 | 200 · 404 si no está DISPONIBLE |
+| GET | `/catalogo/:id` | Bearer | RF-10, HU-10 | 200 con el contacto · 401 sin sesión · 404 si no está DISPONIBLE |
 
 **Parámetros de consulta de `/catalogo`:** `variedadId`, `calibreId`, `municipioId`, `precioMax`, `orden` (`precio_asc` \| `precio_desc` \| `reciente`), `pagina`, `limite` (máximo 100).
 
@@ -257,7 +288,8 @@ PAPACOL/
 │   └── package.json
 ├── database/
 │   ├── schema.sql         Modelo físico en 3FN
-│   └── seed.sql           Datos de prueba
+│   ├── seed.sql           Datos de prueba
+│   └── migraciones/       Cambios para bases ya creadas
 └── README.md
 ```
 ...

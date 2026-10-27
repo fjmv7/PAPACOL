@@ -1,0 +1,31 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "PAPACOL: API (backend)",
+      "detail": "Inicia la API en el puerto 3000 en segundo plano (si ya está corriendo, no hace nada).",
+      "type": "shell",
+      "command": "if ss -ltn | grep -q ':3000 '; then echo 'La API ya está corriendo en el puerto 3000'; else nohup npm start > /tmp/papacol-api.log 2>&1 & for i in $(seq 1 30); do ss -ltn | grep -q ':3000 ' && break; sleep 1; done; ss -ltn | grep -q ':3000 ' && echo 'API iniciada (registro en /tmp/papacol-api.log)' || { echo 'La API no arrancó, revisa /tmp/papacol-api.log'; cat /tmp/papacol-api.log; exit 1; }; fi",
+      "options": {
+        "cwd": "${workspaceFolder}/backend"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "PAPACOL: conectar celular",
+      "detail": "Hace que el celular por USB llegue a la API del PC (adb reverse).",
+      "type": "shell",
+      "command": "adb reverse tcp:3000 tcp:3000 && echo 'Celular conectado a la API' || echo 'NO ENCUENTRO EL CELULAR: conéctalo por USB, desbloquéalo, elige Transferir archivos y acepta la depuración USB. Luego pulsa F5 otra vez.'",
+      "problemMatcher": []
+    },
+    {
+      "label": "PAPACOL: preparar",
+      "dependsOn": [
+        "PAPACOL: API (backend)",
+        "PAPACOL: conectar celular"
+      ],
+      "problemMatcher": [],
+      "dependsOrder": "sequence"
+    }
+  ]
+}
